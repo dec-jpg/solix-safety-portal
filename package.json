@@ -1,0 +1,19 @@
+{
+  "name": "contractor-portal",
+  "version": "1.0.0",
+  "description": "Contractor compliance portal: operatives and training matrix, toolbox talks, job RAMS and site packs",
+  "main": "server.js",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "migrate": "node scripts/migrate.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
+    "multer": "^2.4.0",
+    "pg": "^8.23.1",
+    "qrcode": "^1.5.4"
+  }
+}
