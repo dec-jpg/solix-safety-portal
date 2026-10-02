@@ -1,9 +1,9 @@
-// Contractor portal: office side.
+// Office side.
 (() => {
   const root = document.getElementById('root');
   const dlg = document.getElementById('dlg');
   let me = null;
-  let brand = { name: 'Portal' };
+  let brand = { name: '', portal: 'Safety portal', terms: { op: 'operative', ops: 'operatives' } };
   const cache = { ops: null, types: null, jobs: null };
 
   // ---------- helpers ----------
@@ -18,7 +18,11 @@
   const fDT = d => (d ? `${fDate(d)} ${fTime(d)}` : '');
   const shortDate = d => (d ? d.split('-').reverse().join('/').replace(/^(\d\d\/\d\d\/)\d\d(\d\d)$/, '$1$2') : '');
   const canEdit = () => me && me.role !== 'viewer';
-  const isAdmin = () => me && me.role === 'admin';
+  const isAdmin = () => me && (me.role === 'admin' || me.role === 'owner');
+  const isOwner = () => me && me.role === 'owner';
+  // Wording: {op} {ops} {Op} {Ops} become the word for the team on site.
+  const cap = w => w.charAt(0).toUpperCase() + w.slice(1);
+  const tx = html => String(html).replace(/\{(op|ops|Op|Ops)\}/g, (_, k) => { const t = brand.terms || { op: 'operative', ops: 'operatives' }; return k === 'Op' ? cap(t.op) : k === 'Ops' ? cap(t.ops) : t[k]; });
   const addMonths = (iso, m) => { const d = new Date(iso + 'T12:00:00Z'); d.setUTCMonth(d.getUTCMonth() + Number(m)); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); };
 
   async function api(path, opts = {}) {
@@ -38,9 +42,9 @@
   const bust = () => { cache.ops = cache.types = cache.jobs = null; };
 
   const main = () => document.getElementById('main');
-  const setMain = html => { main().innerHTML = html; };
+  const setMain = html => { main().innerHTML = tx(html); };
   function flash(msg, kind = 'ok') {
-    const n = document.createElement('div'); n.className = `note ${kind} no-print`; n.textContent = msg;
+    const n = document.createElement('div'); n.className = `note ${kind} no-print`; n.textContent = tx(msg);
     main().prepend(n); setTimeout(() => n.remove(), kind === 'err' ? 7000 : 3500);
   }
   function dlgErr(msg) {
@@ -49,8 +53,8 @@
     n.textContent = msg; n.scrollIntoView({ block: 'nearest' });
   }
   function openDlg(title, body, foot = '') {
-    dlg.innerHTML = `<div class="dlg-head"><h2>${esc(title)}</h2><button class="btn quiet" data-close aria-label="Close">Close</button></div>
-      <div class="dlg-body">${body}</div>${foot ? `<div class="dlg-foot">${foot}</div>` : ''}`;
+    dlg.innerHTML = tx(`<div class="dlg-head"><h2>${esc(title)}</h2><button class="btn quiet" data-close aria-label="Close">Close</button></div>
+      <div class="dlg-body">${body}</div>${foot ? `<div class="dlg-foot">${foot}</div>` : ''}`);
     dlg.querySelectorAll('[data-close]').forEach(b => (b.onclick = () => dlg.close()));
     if (!dlg.open) dlg.showModal();
     return dlg;
@@ -76,7 +80,7 @@
   // ---------- login ----------
   async function boot() {
     try { brand = await (await fetch('/api/brand')).json(); } catch { /* defaults */ }
-    document.title = `${brand.name} portal`;
+    document.title = brand.portal;
     const s = await api('/api/auth/state');
     if (s.user) { me = s.user; return shell(); }
     showLogin(s);
@@ -84,7 +88,7 @@
 
   async function showLogin(state) {
     const s = state || await api('/api/auth/state');
-    const logo = `<img src="/logo" alt="${esc(brand.name)}"><div class="sub">Safety Portal</div>`;
+    const logo = `<img src="/logo" alt="${esc(brand.name)}" onerror="this.remove()"><div class="sub">${esc(brand.portal)}</div>`;
     if (s.needsSetup) {
       root.innerHTML = `<div class="login-wrap"><div class="login-card">${logo}<h1>Set up the portal</h1>
         ${s.setupEnabled ? `<p class="muted">Create the first admin account. Everyone else is added from inside the portal.</p><div id="msg"></div>
@@ -123,26 +127,27 @@
   };
   const NAV = [
     ['Overview'], ['', 'Dashboard'],
-    ['People'], ['operatives', 'Operatives'], ['matrix', 'Training matrix'],
+    ['People'], ['operatives', '{Ops}'], ['matrix', 'Training matrix'],
     ['Site work'], ['jobs', 'Jobs & RAMS'], ['talks', 'Toolbox talks'], ['unmatched', 'Signatures to match'],
-    ['Admin', 'admin'], ['settings', 'Settings', 'admin'], ['users', 'Users', 'admin'],
+    ['Admin', 'admin'], ['users', 'Users', 'admin'], ['settings', 'Safety Simplified', 'owner'],
   ];
-  const CRUMB = { '': 'Health & safety overview', operatives: 'Everyone working for you', matrix: 'Cards, tickets and expiry dates', jobs: 'RAMS, drawings and sign-off per job',
-    talks: 'Issue, sign and track', unmatched: 'Signatures from people not on the register', settings: 'Branding and training types', users: 'Office logins' };
+  const CRUMB = { '': 'Health & safety overview', operatives: 'Your {ops} and their details', matrix: 'Cards, tickets and expiry dates', jobs: 'RAMS, drawings and sign-off per job',
+    talks: 'Issue, sign and track', unmatched: 'Signatures from people not on the register', settings: 'Training list and account settings', users: 'Office logins' };
 
   function shell() {
-    const items = NAV.filter(n => (n.length === 1 || n[1] === 'admin' ? !n[1] || isAdmin() : !n[2] || isAdmin())).map(n => (n.length === 1 || n[1] === 'admin' && n.length === 2
+    const allowed = r => !r || (r === 'owner' ? isOwner() : isAdmin());
+    const items = NAV.filter(n => (n.length === 1 || n[1] === 'admin' ? allowed(n[1]) : allowed(n[2]))).map(n => (n.length === 1 || n[1] === 'admin' && n.length === 2
       ? `<div class="nav-label">${n[0]}</div>`
       : `<a href="#/${n[0]}" data-nav="${n[0]}"><svg class="ic" viewBox="0 0 24 24">${ICONS[n[0]]}</svg>${esc(n[1])}<span class="count hidden" data-count="${n[0]}"></span></a>`)).join('');
-    root.innerHTML = `<div class="ad-shell"><aside class="ad-nav" id="rail"><div class="rail-brand"><div class="logo"><img src="/logo" alt="${esc(brand.name)}"></div>
-        <div class="t">Safety Portal</div><div class="s">${esc(brand.name)}</div></div>
+    root.innerHTML = tx(`<div class="ad-shell"><aside class="ad-nav" id="rail"><div class="rail-brand"><div class="logo"><img src="/logo" alt="${esc(brand.name)}" onerror="this.parentNode.remove()"></div>
+        <div class="t">${esc(brand.portal)}</div><div class="s">${esc(brand.name)}</div></div>
       <nav aria-label="Main">${items}</nav>
-      <div class="rail-foot"><div class="live"><span class="dot"></span>Live</div><div style="margin-top:6px">Managed by Safety Simplified Ltd</div></div></aside>
+      <div class="rail-foot"><div class="live"><span class="dot"></span>Live</div><div style="margin-top:6px">Built and supported by Safety Simplified</div></div></aside>
       <div class="scrim" id="scrim"></div>
       <div class="ad-body"><div class="topbar"><div style="display:flex;align-items:center;gap:14px"><button class="burger" id="burger" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
         <div><h1 id="vt">Dashboard</h1><div class="crumb" id="vc"></div></div></div>
         <div class="userchip"><span>Signed in as <b>${esc(me.name)}</b></span><button id="pw">Password</button><button id="lo">Sign out</button></div></div>
-      <main class="ad-main" id="main"></main></div></div>`;
+      <main class="ad-main" id="main"></main></div></div>`);
     document.getElementById('lo').onclick = async () => { await api('/api/auth/logout', { body: {} }); me = null; showLogin(); };
     document.getElementById('pw').onclick = changePassword;
     const rail = document.getElementById('rail'), scrim = document.getElementById('scrim');
@@ -160,8 +165,8 @@
     const [view, id] = path.split('/');
     document.querySelectorAll('[data-nav]').forEach(a => a.classList.toggle('on', a.dataset.nav === (view || '')));
     const nav = NAV.find(n => n.length > 1 && n[0] === (view || '') && n[1] !== 'admin');
-    document.getElementById('vt').textContent = nav ? nav[1] : 'Dashboard';
-    document.getElementById('vc').textContent = `${brand.name} · ${CRUMB[view || ''] || ''}`;
+    document.getElementById('vt').textContent = tx(nav ? nav[1] : 'Dashboard');
+    document.getElementById('vc').textContent = tx(`${brand.name} · ${CRUMB[view || ''] || ''}`);
     window.scrollTo(0, 0);
     const views = { '': dashboard, operatives, matrix: matrixView, jobs: jobsView, talks: talksView, unmatched, settings, users };
     setMain('<p class="muted">Loading</p>');
@@ -198,11 +203,11 @@
     d.jobs.filter(j => j.outstanding).forEach(j => flags.push(['', `${j.name}: ${j.outstanding} RAMS signature${j.outstanding === 1 ? '' : 's'} outstanding.`, `#/jobs/${j.id}`]));
     d.jobs.filter(j => !j.docs).forEach(j => flags.push(['red', `${j.name}: no RAMS uploaded.`, `#/jobs/${j.id}`]));
     if (c.unmatched) flags.push(['', `${c.unmatched} signature${c.unmatched === 1 ? '' : 's'} from people not on the register.`, '#/unmatched']);
-    if (!c.operatives) flags.push(['red', 'No operatives on the register yet. Start here.', '#/operatives']);
+    if (!c.operatives) flags.push(['red', 'No {ops} on the register yet. Start here.', '#/operatives']);
 
     setMain(`<div class="ad-head"><div><p class="muted" style="margin:0">${new Date().toLocaleDateString('en-GB', { ...tz, weekday: 'long', day: 'numeric', month: 'long' })}</p></div></div>
       <div class="stats">
-        <a class="stat accent" href="#/operatives"><div class="n">${c.operatives}</div><div class="l">Operatives</div></a>
+        <a class="stat accent" href="#/operatives"><div class="n">${c.operatives}</div><div class="l">{Ops}</div></a>
         <a class="stat ${expired.length + d.missing.length ? 'bad' : ''}" href="#/matrix"><div class="n">${expired.length + d.missing.length}</div><div class="l">Training gaps</div></a>
         <a class="stat" href="#/jobs"><div class="n">${c.live_jobs}</div><div class="l">Live jobs</div></a>
         <a class="stat" href="#/talks"><div class="n">${c.open_talks}</div><div class="l">Talks open for signing</div></a></div>
@@ -228,7 +233,7 @@
     const show = params.get('show') || 'active';
     const list = rows.filter(o => (show === 'all' ? true : o.active));
     setMain(`<div class="ad-head"><div><p class="muted">Everyone who works for you on site, employed or subcontract.</p></div>
-        ${canEdit() ? '<div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn ghost" id="imp">Add a list</button><button class="btn" id="add">Add operative</button></div>' : ''}</div>
+        ${canEdit() ? '<div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn ghost" id="imp">Add a list</button><button class="btn" id="add">Add {op}</button></div>' : ''}</div>
       <div class="toolbar"><div class="field"><label>Search</label><input id="s" type="search" placeholder="Name, phone or role"></div>
         <div class="field"><label>Show</label><select id="sh"><option value="active">Current</option><option value="all" ${show === 'all' ? 'selected' : ''}>Including left</option></select></div></div>
       <div class="tablewrap">${list.length ? `<table><thead><tr><th>Name</th><th>Role</th><th>Mobile</th><th>Training</th><th>Live jobs</th></tr></thead><tbody>
@@ -238,7 +243,7 @@
           <td>${o.expired || o.missing ? `<span class="pill no">${[o.expired && `${o.expired} expired`, o.missing && `${o.missing} missing`].filter(Boolean).join(', ')}</span>` : ''}
             ${o.expiring ? `<span class="pill under_review">${o.expiring} expiring</span>` : ''}${!o.expired && !o.missing && !o.expiring ? '<span class="pill yes">In date</span>' : ''}</td>
           <td class="small">${esc(o.jobs || '')}</td></tr>`).join('')}</tbody></table>`
-        : '<div class="empty"><b>No operatives yet.</b>Add them one at a time, or paste a list from a spreadsheet.</div>'}</div>`);
+        : '<div class="empty"><b>No {ops} yet.</b>Add them one at a time, or paste a list from a spreadsheet.</div>'}</div>`);
     document.getElementById('sh').onchange = e => (location.hash = `#/operatives?show=${e.target.value}`);
     document.getElementById('s').oninput = e => { const t = e.target.value.toLowerCase(); main().querySelectorAll('tr[data-q]').forEach(tr => tr.classList.toggle('hidden', !tr.dataset.q.includes(t))); };
     main().querySelectorAll('tr[data-id]').forEach(tr => (tr.onclick = () => (location.hash = '#/operatives/' + tr.dataset.id)));
@@ -249,7 +254,7 @@
   }
 
   function importOperatives() {
-    openDlg('Add a list of operatives', `<p class="muted">Paste from a spreadsheet or type one person per line: <b>name, mobile, role</b>. Mobile and role are optional. Anyone already on the register is skipped.</p>
+    openDlg('Add a list of {ops}', `<p class="muted">Paste from a spreadsheet or type one person per line: <b>name, mobile, role</b>. Mobile and role are optional. Anyone already on the register is skipped.</p>
       <textarea id="t" rows="12" placeholder="John Smith, 07700 900123, Fitter&#10;Dave Jones, 07700 900456, Labourer"></textarea>`, '<button class="btn" id="go">Add them</button>');
     $d('#go').onclick = async () => {
       try { const r = await api('/operatives/import', { body: { text: val('#t') } }); dlg.close(); bust(); flash(`${r.added} added${r.skipped ? `, ${r.skipped} skipped` : ''}.`); route(); }
@@ -259,7 +264,7 @@
 
   function editOperative(o = {}) {
     const isNew = !o.id;
-    openDlg(isNew ? 'Add operative' : `Edit ${o.full_name}`, `
+    openDlg(isNew ? 'Add {op}' : `Edit ${o.full_name}`, `
       <div class="row">${field('Full name', input('fn', o.full_name))}${field('Mobile', input('ph', o.phone, 'tel'), 'used to match their signatures')}</div>
       <div class="row">${field('Role or trade', input('ro', o.role, 'text', 'list="roles"'))}${field('Employment', `<select id="em"><option value="">Not set</option>${['Employed', 'Subcontract', 'Agency'].map(x => `<option ${o.employment === x ? 'selected' : ''}>${x}</option>`).join('')}</select>`)}</div>
       <datalist id="roles">${['Installer', 'Fitter', 'Supervisor', 'Labourer', 'Apprentice', 'Plumber', 'Heating engineer', 'Gas engineer', 'Driver'].map(x => `<option>${x}</option>`).join('')}</datalist>
@@ -267,7 +272,7 @@
       <div class="row">${field('Emergency contact', input('en', o.emergency_name))}${field('Emergency number', input('ep', o.emergency_phone, 'tel'))}</div>
       ${field('Notes', `<textarea id="no">${esc(o.notes || '')}</textarea>`)}
       ${isNew ? '' : `<label class="check"><input type="checkbox" id="ac" ${o.active ? 'checked' : ''}> Currently working for us <span class="hint">untick when they leave; their records are kept</span></label>`}`,
-    `<button class="btn" id="save">${isNew ? 'Add operative' : 'Save'}</button>`);
+    `<button class="btn" id="save">${isNew ? 'Add {op}' : 'Save'}</button>`);
     $d('#save').onclick = async () => {
       const body = { full_name: val('#fn'), phone: val('#ph'), role: val('#ro'), employment: val('#em'), email: val('#ea'), start_date: val('#sd'),
         emergency_name: val('#en'), emergency_phone: val('#ep'), notes: val('#no'), active: isNew ? true : $d('#ac').checked };
@@ -286,7 +291,7 @@
     const today = new Date().toLocaleDateString('en-CA', tz), soon = new Date(Date.now() + 30 * 864e5).toLocaleDateString('en-CA', tz);
     const st = x => (!x ? null : !x.expires_on ? 'valid' : x.expires_on < today ? 'expired' : x.expires_on <= soon ? 'expiring' : 'valid');
     const activeTypes = ts.filter(t => t.active);
-    setMain(`<p class="no-print"><a href="#/operatives">Back to operatives</a></p>
+    setMain(`<p class="no-print"><a href="#/operatives">Back to {ops}</a></p>
       <div class="ad-head"><div><h1>${esc(o.full_name)}</h1><p class="muted">${[o.role, o.employment, o.phone].filter(Boolean).map(esc).join(' · ')}${o.active ? '' : ' · <span class="pill grey">left</span>'}</p></div>
         ${canEdit() ? '<div style="display:flex;gap:.5rem"><button class="btn ghost" id="ed">Edit details</button><button class="btn" id="aq">Add training</button></div>' : ''}</div>
       <div class="tabs"><button data-t="tr" class="on">Training (${d.quals.length})</button><button data-t="sg">Signed (${d.signoffs.length})</button><button data-t="dt">Details</button></div>
@@ -364,7 +369,7 @@
             const txt = c ? (c.expires_on ? shortDate(c.expires_on) : 'Held') : t.required ? 'Missing' : '';
             return `<td class="c ${cls}" data-o="${o.id}" data-t="${t.id}" data-x="${c ? c.id : ''}" title="${esc(t.name)}">${txt}</td>`; }).join('')}</tr>`).join('')}
         </tbody></table></div><p class="small muted">* required for everyone. Click a cell to add or update a record.</p>`
-        : '<div class="empty"><b>Nothing to show yet.</b>Add operatives, then their training.</div>'}`);
+        : '<div class="empty"><b>Nothing to show yet.</b>Add {ops}, then their training.</div>'}`);
     document.getElementById('jb').onchange = e => (location.hash = '#/matrix' + (e.target.value ? `?job=${e.target.value}` : ''));
     if (!canEdit()) return;
     main().querySelectorAll('td.c').forEach(td => (td.onclick = async () => {
@@ -458,7 +463,7 @@
       ${field('Title', input('ti', prev ? prev.title : ''))}
       <div class="row">${field('Reference', input('rf', prev ? prev.reference : ''))}${field('Revision', input('rv', nextRev))}</div>
       ${field('File', '<input id="fi" type="file" accept="application/pdf,image/*,.doc,.docx">', 'PDF works best on phones')}
-      <label class="check"><input type="checkbox" id="so" ${!prev || prev.requires_signoff ? 'checked' : ''}> Operatives must read and sign this</label>`,
+      <label class="check"><input type="checkbox" id="so" ${!prev || prev.requires_signoff ? 'checked' : ''}> {Ops} must read and sign this</label>`,
     '<button class="btn" id="save">Upload</button>');
     $d('#kd').onchange = () => { $d('#so').checked = ['rams', 'permit'].includes(val('#kd')); };
     $d('#fi').onchange = () => { const f = $d('#fi').files[0]; if (f && !val('#ti')) $d('#ti').value = f.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' '); };
@@ -477,7 +482,7 @@
     openDlg('Edit document', `${field('Title', input('ti', x.title))}
       <div class="row">${field('Reference', input('rf', x.reference))}${field('Revision', input('rv', x.revision))}</div>
       ${field('Type', `<select id="kd">${Object.entries(KIND).map(([k, l]) => `<option value="${k}" ${x.kind === k ? 'selected' : ''}>${l}</option>`).join('')}</select>`)}
-      <label class="check" style="margin-bottom:.6rem"><input type="checkbox" id="so" ${x.requires_signoff ? 'checked' : ''}> Operatives must read and sign this</label>
+      <label class="check" style="margin-bottom:.6rem"><input type="checkbox" id="so" ${x.requires_signoff ? 'checked' : ''}> {Ops} must read and sign this</label>
       <label class="check"><input type="checkbox" id="cu" checked> Current <span class="hint">untick to withdraw it from the pack</span></label>`,
     '<button class="btn danger left" id="del">Delete</button><button class="btn" id="save">Save</button>');
     $d('#save').onclick = async () => {
@@ -494,7 +499,7 @@
     const all = (await ops(true)).filter(o => o.active);
     const on = new Set(team.map(t => t.id));
     openDlg(`Team on ${j.name}`, `<input type="search" id="fs" placeholder="Search" style="margin-bottom:.8rem">
-      <div style="display:grid;gap:.4rem">${all.map(o => `<label class="check" data-q="${esc(o.full_name.toLowerCase())}"><input type="checkbox" value="${o.id}" ${on.has(o.id) ? 'checked' : ''}> ${esc(o.full_name)} <span class="hint">${esc(o.role || '')}</span></label>`).join('') || '<p class="muted">Add operatives first.</p>'}</div>`,
+      <div style="display:grid;gap:.4rem">${all.map(o => `<label class="check" data-q="${esc(o.full_name.toLowerCase())}"><input type="checkbox" value="${o.id}" ${on.has(o.id) ? 'checked' : ''}> ${esc(o.full_name)} <span class="hint">${esc(o.role || '')}</span></label>`).join('') || '<p class="muted">Add {ops} first.</p>'}</div>`,
     '<button class="btn" id="save">Save team</button>');
     $d('#fs').oninput = e => dlg.querySelectorAll('[data-q]').forEach(l => l.classList.toggle('hidden', !l.dataset.q.includes(e.target.value.toLowerCase())));
     $d('#save').onclick = async () => {
@@ -599,10 +604,10 @@
     const groups = {};
     d.rows.forEach(s => { const k = `${s.name_given.toLowerCase()}|${s.phone_given || ''}`; (groups[k] = groups[k] || []).push(s); });
     const act = all.filter(o => o.active);
-    setMain(`<div class="ad-head"><div><p class="muted">People who signed but didn't match anyone on the register (new starter, different number, or a typo). Match them to someone, or add them as a new operative.</p></div></div>
+    setMain(`<div class="ad-head"><div><p class="muted">People who signed but didn't match anyone on the register (new starter, different number, or a typo). Match them to someone, or add them as a new {op}.</p></div></div>
       ${Object.keys(groups).length ? Object.values(groups).map(g => `<div class="panel"><div class="ad-head" style="margin:0 0 .6rem"><div><h2 style="margin:0">${esc(g[0].name_given)}</h2><p class="muted small">${esc(g[0].phone_given || 'No number')} · ${g.length} signature${g.length === 1 ? '' : 's'}</p></div>
           ${canEdit() ? `<div style="display:flex;gap:.5rem;align-items:end;flex-wrap:wrap"><select data-pick="${g[0].id}" style="width:auto"><option value="">Match to</option>${opt(act, '', 'full_name')}</select>
-            <button class="btn small" data-link="${g[0].id}">Match</button><button class="btn small ghost" data-create="${g[0].id}">Add as new operative</button></div>` : ''}</div>
+            <button class="btn small" data-link="${g[0].id}">Match</button><button class="btn small ghost" data-create="${g[0].id}">Add as new {op}</button></div>` : ''}</div>
           <ul class="small" style="margin:0;padding-left:1.1rem">${g.map(s => `<li>${s.talk ? `Toolbox talk: ${esc(s.talk)}` : `${esc(s.job)}: ${esc(s.doc)}`}, ${fDT(s.signed_at)}</li>`).join('')}</ul></div>`).join('')
         : '<div class="empty"><b>Nothing to match.</b>Every signature is linked to someone on the register.</div>'}`);
     main().querySelectorAll('[data-link]').forEach(b => (b.onclick = async () => {
@@ -617,35 +622,17 @@
 
   // ---------- settings ----------
   async function settings() {
-    if (!isAdmin()) return setMain('<div class="note warn">Only admins can change settings.</div>');
-    const [s, ts] = await Promise.all([api('/settings'), types(true)]);
-    let logo;
-    setMain(`
-      <div class="panel"><h2>Subscription</h2><p class="small muted">Your portal subscription with Safety Simplified is paid by Direct Debit through GoCardless.</p>
-        ${s.dd_link ? `<p><a class="btn" href="${esc(s.dd_link)}" target="_blank" rel="noopener">Set up Direct Debit</a></p>` : '<p class="small muted">No Direct Debit link added yet.</p>'}
-        <details><summary class="small muted">Change the Direct Debit link</summary><div class="linkbox" style="margin-top:.6rem"><input id="dd" value="${esc(s.dd_link)}" placeholder="https://pay.gocardless.com/..."><button class="btn small" id="ddsave">Save link</button></div></details></div>
-      <div class="panel"><h2>Company branding</h2><p class="small muted">Shown on the portal and on every link the lads open.</p>
-        <div class="row">${field('Company name', input('cn', s.company_name))}${field('Brand colour', `<input id="bc" type="color" value="${esc(s.brand_colour)}" style="height:2.9rem;padding:.2rem">`)}</div>
-        ${field('Logo', '<input id="lg" type="file" accept="image/png,image/jpeg,image/svg+xml">', 'PNG with a transparent background works best')}
-        <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem"><img src="/logo?${Date.now()}" alt="Current logo" style="max-height:48px;max-width:240px;background:#fff;border:1px solid var(--line);padding:.4rem;border-radius:6px">
-          ${s.has_logo ? '<button class="btn small quiet" id="rl">Remove logo</button>' : '<span class="small muted">No logo yet, the company name is shown instead.</span>'}</div>
-        <button class="btn" id="sb">Save branding</button></div>
-      <div class="panel"><div class="ad-head" style="margin-bottom:.6rem"><div><h2 style="margin:0">Training types</h2><p class="small muted" style="margin:0">The columns on the training matrix. Required ones show as missing for anyone without them.</p></div><button class="btn small" id="at">Add type</button></div>
-        <div class="tablewrap"><table><thead><tr><th>Training</th><th>Required for everyone</th><th>Valid for</th><th></th></tr></thead><tbody>
+    if (!isOwner()) return setMain('<div class="note warn">This page is for Safety Simplified.</div>');
+    const [acc, ts] = await Promise.all([api('/account'), types(true)]);
+    setMain(`<div class="panel"><h2>Direct Debit link</h2><p class="small muted">The GoCardless link for this client. Their admins see a "Set up Direct Debit" button on the Users page.</p>
+        <div class="linkbox"><input id="dd" value="${esc(acc.dd_link)}" placeholder="https://pay.gocardless.com/..."><button class="btn small" id="ddsave">Save link</button></div></div>
+      <div class="panel"><div class="ad-head" style="margin-bottom:.6rem"><div><h2 style="margin:0">Training list</h2><p class="small muted" style="margin:0">The columns on the training matrix. Required ones show as missing for anyone without them.</p></div><button class="btn small" id="at">Add training</button></div>
+        <div class="tablewrap" style="box-shadow:none"><table><thead><tr><th>Training</th><th>Required for everyone</th><th>Valid for</th><th></th></tr></thead><tbody>
           ${ts.map(t => `<tr><td><b>${esc(t.name)}</b>${t.active ? '' : ' <span class="pill grey">hidden</span>'}</td><td>${t.required ? 'Yes' : ''}</td><td>${t.validity_months ? `${t.validity_months} months` : 'No expiry'}</td>
             <td><button class="btn small quiet" data-t="${t.id}">Edit</button></td></tr>`).join('')}</tbody></table></div></div>`);
     document.getElementById('ddsave').onclick = async () => {
-      try { await api('/settings', { method: 'PUT', body: { dd_link: v('dd') } }); bust(); route(); } catch (e) { flash(e.message, 'err'); }
+      try { await api('/settings', { method: 'PUT', body: { dd_link: v('dd') } }); flash('Link saved.'); } catch (e) { flash(e.message, 'err'); }
     };
-    document.getElementById('lg').onchange = e => {
-      const f = e.target.files[0]; if (!f) return;
-      const rd = new FileReader(); rd.onload = () => { logo = rd.result; }; rd.readAsDataURL(f);
-    };
-    document.getElementById('sb').onclick = async () => {
-      try { await api('/settings', { method: 'PUT', body: { company_name: v('cn'), brand_colour: v('bc'), ...(logo ? { logo } : {}) } }); location.reload(); }
-      catch (e) { flash(e.message, 'err'); }
-    };
-    if (document.getElementById('rl')) document.getElementById('rl').onclick = async () => { await api('/settings', { method: 'PUT', body: { logo: null } }); location.reload(); };
     const editType = (t = {}) => {
       openDlg(t.id ? 'Edit training type' : 'Add training type', `${field('Name', input('nm', t.name))}
         ${field('Valid for (months)', input('vm', t.validity_months, 'number', 'min="1"'), 'leave empty if it does not expire; used to fill in expiry dates')}
@@ -664,14 +651,18 @@
   async function users() {
     if (!isAdmin()) return setMain('<div class="note warn">Only admins can manage users.</div>');
     const d = await api('/users');
-    const roleName = { admin: 'Admin', manager: 'Manager', viewer: 'View only' };
-    setMain(`<div class="ad-head"><div><p class="muted">Office staff who log in here. Operatives don't need accounts; they use the links you send.</p></div><button class="btn" id="add">Add user</button></div>
+    const roleName = { owner: 'Safety Simplified', admin: 'Admin', manager: 'Manager', viewer: 'View only' };
+    if (!isOwner()) delete roleName.owner;
+    const acc = await api('/account');
+    setMain(`${acc.dd_link ? `<div class="panel"><div class="ad-head" style="margin:0;align-items:center"><div><h2 style="margin:0">Your account</h2><p class="small muted" style="margin:0">Your subscription with Safety Simplified is paid by Direct Debit, handled securely by GoCardless.</p></div>
+        <a class="btn" href="${esc(acc.dd_link)}" target="_blank" rel="noopener">Set up Direct Debit</a></div></div>` : ''}
+      <div class="ad-head"><div><p class="muted">Office staff who log in here. {Ops} don't need accounts; they use the links you send.</p></div><button class="btn" id="add">Add user</button></div>
       <div class="tablewrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody>
         ${d.rows.map(u => `<tr><td><b>${esc(u.name)}</b>${u.active ? '' : ' <span class="pill grey">disabled</span>'}</td><td>${esc(u.email)}</td><td>${roleName[u.role]}</td>
           <td><button class="btn small quiet" data-u="${u.id}">Edit</button></td></tr>`).join('')}</tbody></table></div>`);
     document.getElementById('add').onclick = () => {
       openDlg('Add user', `${field('Name', input('n', ''))}${field('Email', input('e', '', 'email'))}
-        ${field('Role', '<select id="r"><option value="manager">Manager</option><option value="viewer">View only</option><option value="admin">Admin</option></select>')}
+        ${field('Role', `<select id="r">${['manager', 'viewer', 'admin', 'owner'].filter(k => roleName[k]).map(k => `<option value="${k}">${roleName[k]}</option>`).join('')}</select>`)}
         ${field('Temporary password', input('p', ''), 'at least 8 characters; they can change it after logging in')}`, '<button class="btn" id="save">Add user</button>');
       $d('#save').onclick = async () => {
         try { await api('/users', { body: { name: val('#n'), email: val('#e'), role: val('#r'), password: val('#p') } }); dlg.close(); users(); } catch (e) { dlgErr(e.message); }
@@ -679,6 +670,7 @@
     };
     main().querySelectorAll('[data-u]').forEach(b => (b.onclick = () => {
       const u = d.rows.find(x => String(x.id) === b.dataset.u);
+      if (u.role === 'owner' && !isOwner()) return;
       openDlg(u.name, `${field('Role', `<select id="r">${Object.entries(roleName).map(([k, l]) => `<option value="${k}" ${u.role === k ? 'selected' : ''}>${l}</option>`).join('')}</select>`)}
         <label class="check" style="margin-bottom:1rem"><input type="checkbox" id="a" ${u.active ? 'checked' : ''}> Account active</label>
         ${field('Reset password', input('p', ''), 'leave empty to keep the current one')}`, '<button class="btn" id="save">Save changes</button>');

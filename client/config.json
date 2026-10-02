@@ -1,0 +1,22 @@
+{
+  "company": "Solix Frame Solutions Ltd",
+  "short": "Solix",
+  "portal": "Solix Site Safety",
+  "colour": "#7f182e",
+  "terms": { "op": "installer", "ops": "installers" },
+  "training": [
+    { "name": "CSCS card", "required": true, "months": 60 },
+    { "name": "Asbestos Awareness", "required": true, "months": 12 },
+    { "name": "Manual Handling", "months": 36 },
+    { "name": "Working at Height", "months": 36 },
+    { "name": "IPAF 3a / 3b", "months": 60 },
+    { "name": "PASMA", "months": 60 },
+    { "name": "Vacuum Lifter / Glass Handling", "months": 36 },
+    { "name": "Silica Dust Awareness", "months": 36 },
+    { "name": "Abrasive Wheels", "months": 36 },
+    { "name": "NVQ Level 2 Fenestration Installation" },
+    { "name": "First Aid at Work", "months": 36 },
+    { "name": "Emergency First Aid at Work", "months": 36 }
+  ],
+  "talks": []
+}

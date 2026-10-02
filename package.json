@@ -1,7 +1,7 @@
 {
-  "name": "contractor-portal",
+  "name": "solix-site-safety",
   "version": "1.0.0",
-  "description": "Contractor compliance portal: operatives and training matrix, toolbox talks, job RAMS and site packs",
+  "description": "Solix Site Safety",
   "main": "server.js",
   "private": true,
   "engines": { "node": ">=20" },

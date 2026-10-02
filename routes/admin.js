@@ -5,13 +5,14 @@ const QRCode = require('qrcode');
 const { q } = require('../lib/db');
 const { requireUser, hash } = require('../lib/auth');
 const { token, clean, normPhone, csv } = require('../lib/util');
-const { getBrand, setBrand, hex } = require('../lib/brand');
+const { getSetting, setSetting } = require('../lib/brand');
 
 const r = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 const view = requireUser();
 const edit = requireUser('manager');
 const admin = requireUser('admin');
+const owner = requireUser('owner');
 
 const baseUrl = req => process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
 const int = v => (v === '' || v == null ? null : parseInt(v, 10));
@@ -178,13 +179,13 @@ r.get('/matrix.csv', view, async (req, res) => {
 
 // ---------- training types ----------
 r.get('/qual-types', view, async (req, res) => res.json({ rows: (await q('SELECT * FROM qual_types ORDER BY active DESC, sort, name')).rows }));
-r.post('/qual-types', admin, async (req, res) => {
+r.post('/qual-types', owner, async (req, res) => {
   const b = req.body || {};
   if (!clean(b.name)) return res.status(400).json({ error: 'Enter a name.' });
   const sort = (await q('SELECT COALESCE(MAX(sort), 0) + 1 AS s FROM qual_types')).rows[0].s;
   res.json({ row: (await q('INSERT INTO qual_types (name, required, validity_months, sort) VALUES ($1,$2,$3,$4) RETURNING *', [clean(b.name, 120), bool(b.required), int(b.validity_months), sort])).rows[0] });
 });
-r.put('/qual-types/:id', admin, async (req, res) => {
+r.put('/qual-types/:id', owner, async (req, res) => {
   const b = req.body || {};
   if (!clean(b.name)) return res.status(400).json({ error: 'Enter a name.' });
   await q('UPDATE qual_types SET name = $1, required = $2, validity_months = $3, active = $4, sort = COALESCE($5, sort) WHERE id = $6',
@@ -397,40 +398,26 @@ r.post('/signoffs/:id/link', edit, async (req, res) => {
 
 r.delete('/signoffs/:id', edit, async (req, res) => { await q('DELETE FROM signoffs WHERE id = $1', [req.params.id]); res.json({ ok: true }); });
 
-// ---------- settings ----------
-r.get('/settings', view, async (req, res) => {
-  const b = await getBrand();
-  res.json({ company_name: b.company_name, brand_colour: hex(b.brand_colour), has_logo: !!b.logo, dd_link: b.dd_link || '' });
-});
+// ---------- account & Safety Simplified settings ----------
+r.get('/account', view, async (req, res) => res.json({ dd_link: await getSetting('dd_link') }));
 
-r.put('/settings', admin, async (req, res) => {
-  const b = req.body || {};
-  const v = {};
-  if (clean(b.company_name)) v.company_name = clean(b.company_name, 120);
-  if (b.brand_colour) v.brand_colour = hex(b.brand_colour);
-  if (typeof b.dd_link === 'string') {
-    const l = b.dd_link.trim();
-    if (l && !/^https:\/\/[^\s]+$/.test(l)) return res.status(400).json({ error: 'The Direct Debit link must start with https://' });
-    v.dd_link = l;
-  }
-  if (b.logo === null) v.logo = '';
-  else if (typeof b.logo === 'string') {
-    if (!/^data:image\/(png|jpeg|svg\+xml|webp);base64,/.test(b.logo) || b.logo.length > 2_000_000) return res.status(400).json({ error: 'Use a PNG, JPG or SVG logo under 1.5 MB.' });
-    v.logo = b.logo;
-  }
-  await setBrand(v);
+r.put('/settings', owner, async (req, res) => {
+  const l = String((req.body || {}).dd_link || '').trim();
+  if (l && !/^https:\/\/\S+$/.test(l)) return res.status(400).json({ error: 'The Direct Debit link must start with https://' });
+  await setSetting('dd_link', l);
   res.json({ ok: true });
 });
 
 // ---------- users ----------
 r.get('/users', admin, async (req, res) => {
-  res.json({ rows: (await q('SELECT id, name, email, role, active, created_at FROM users ORDER BY name')).rows });
+  res.json({ rows: (await q(`SELECT id, name, email, role, active, created_at FROM users WHERE $1 OR role <> 'owner' ORDER BY name`, [req.user.role === 'owner'])).rows });
 });
 
 r.post('/users', admin, async (req, res) => {
   const b = req.body || {};
   if (!clean(b.name) || !clean(b.email) || !b.password || b.password.length < 8) return res.status(400).json({ error: 'Enter a name, an email and a password of at least 8 characters.' });
-  const role = ['admin', 'manager', 'viewer'].includes(b.role) ? b.role : 'manager';
+  const roles = req.user.role === 'owner' ? ['owner', 'admin', 'manager', 'viewer'] : ['admin', 'manager', 'viewer'];
+  const role = roles.includes(b.role) ? b.role : 'manager';
   try {
     const row = (await q('INSERT INTO users (name, email, password_hash, role) VALUES ($1, LOWER($2), $3, $4) RETURNING id, name, email, role, active',
       [clean(b.name, 120), clean(b.email, 160), await hash(b.password), role])).rows[0];
@@ -443,8 +430,12 @@ r.post('/users', admin, async (req, res) => {
 
 r.put('/users/:id', admin, async (req, res) => {
   const b = req.body || {};
-  const role = ['admin', 'manager', 'viewer'].includes(b.role) ? b.role : null;
-  if (Number(req.params.id) === req.user.id && (b.active === false || (role && role !== 'admin'))) return res.status(400).json({ error: 'You cannot remove your own admin access.' });
+  const target = (await q('SELECT role FROM users WHERE id = $1', [req.params.id])).rows[0];
+  if (!target) return res.status(404).json({ error: 'Not found.' });
+  if (target.role === 'owner' && req.user.role !== 'owner') return res.status(403).json({ error: 'Only Safety Simplified can change this account.' });
+  const roles = req.user.role === 'owner' ? ['owner', 'admin', 'manager', 'viewer'] : ['admin', 'manager', 'viewer'];
+  const role = roles.includes(b.role) ? b.role : null;
+  if (Number(req.params.id) === req.user.id && (b.active === false || (role && role !== req.user.role))) return res.status(400).json({ error: 'You cannot remove your own admin access.' });
   if (b.password && b.password.length < 8) return res.status(400).json({ error: 'Passwords need at least 8 characters.' });
   await q('UPDATE users SET role = COALESCE($1, role), active = COALESCE($2, active) WHERE id = $3', [role, typeof b.active === 'boolean' ? b.active : null, req.params.id]);
   if (b.password) await q('UPDATE users SET password_hash = $1 WHERE id = $2', [await hash(b.password), req.params.id]);

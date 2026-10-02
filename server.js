@@ -1,10 +1,11 @@
-// Contractor compliance portal: operatives and training matrix, toolbox talks, job RAMS and site packs.
-// One codebase for every client. Branding and training types are set inside the portal.
+// Safety portal: people and training matrix, toolbox talks, job RAMS and site packs.
+// Client-specific build: see /client.
 const express = require('express');
 const path = require('path');
 const { migrate } = require('./lib/db');
 const { loadSecret } = require('./lib/auth');
-const { getBrand, css, wordmark } = require('./lib/brand');
+const { css, publicBrand } = require('./lib/brand');
+const client = require('./lib/client');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -16,21 +17,12 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/p', require('./routes/public'));
 app.use('/api/admin', require('./routes/admin'));
 
-// Branding
-app.get('/api/brand', async (req, res, next) => {
-  try { const b = await getBrand(); res.json({ name: b.company_name, colour: b.brand_colour, has_logo: !!b.logo }); } catch (e) { next(e); }
-});
-app.get('/brand.css', async (req, res, next) => {
-  try { res.type('text/css').set('Cache-Control', 'no-cache').send(css(await getBrand())); } catch (e) { next(e); }
-});
-app.get('/logo', async (req, res, next) => {
-  try {
-    const b = await getBrand();
-    res.set('Cache-Control', 'no-cache');
-    const m = b.logo && b.logo.match(/^data:(image\/[\w+.-]+);base64,(.*)$/);
-    if (m) return res.type(m[1]).send(Buffer.from(m[2], 'base64'));
-    res.type('image/svg+xml').send(wordmark(b.company_name));
-  } catch (e) { next(e); }
+// Branding, from this client's build
+app.get('/api/brand', (req, res) => res.json(publicBrand()));
+app.get('/brand.css', (req, res) => res.type('text/css').set('Cache-Control', 'no-cache').send(css()));
+app.get('/logo', (req, res) => {
+  if (!client.logo) return res.status(404).end();
+  res.set('Cache-Control', 'public, max-age=3600').type(client.logo.type).sendFile(client.logo.file);
 });
 
 const pub = path.join(__dirname, 'public');

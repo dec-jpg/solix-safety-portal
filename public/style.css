@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;700&display=swap');
 
-/* Same design language as the GRS Safety Platform. --oak is the client's brand colour (set in /brand.css). */
+/* --oak is the brand colour (set in /brand.css). */
 :root {
   --oak: #1f3a5f; --oak-2: #2c5280; --tint: #e8eef5;
   --ink: #17150f; --ink-2: #6f685d; --faint: #9a9388;

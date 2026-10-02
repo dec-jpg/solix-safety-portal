@@ -6,7 +6,7 @@
 const express = require('express');
 const { q } = require('../lib/db');
 const { token, clean, normPhone, surname, validImage } = require('../lib/util');
-const { getBrand } = require('../lib/brand');
+const { publicBrand } = require('../lib/brand');
 
 const r = express.Router();
 
@@ -49,7 +49,7 @@ r.post('/identify', async (req, res) => {
   res.json({ matched: true, token: t, name: op.full_name, phone: op.phone });
 });
 
-r.get('/brand', async (req, res) => { const b = await getBrand(); res.json({ name: b.company_name }); });
+r.get('/brand', (req, res) => res.json(publicBrand()));
 
 // ---------- toolbox talks ----------
 async function talkByToken(t) { return (await q("SELECT * FROM talks WHERE token = $1 AND status <> 'draft'", [t])).rows[0]; }

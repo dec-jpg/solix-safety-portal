@@ -20,7 +20,7 @@ r.post('/setup', async (req, res) => {
   const { setup_key, name, email, password } = req.body || {};
   if (setup_key !== process.env.SETUP_KEY) return res.status(403).json({ error: 'That setup key is not right.' });
   if (!clean(name) || !clean(email) || !password || password.length < 8) return res.status(400).json({ error: 'Enter a name, an email and a password of at least 8 characters.' });
-  const u = (await q("INSERT INTO users (name, email, password_hash, role) VALUES ($1, LOWER($2), $3, 'admin') RETURNING id, name, email, role",
+  const u = (await q("INSERT INTO users (name, email, password_hash, role) VALUES ($1, LOWER($2), $3, 'owner') RETURNING id, name, email, role",
     [clean(name), clean(email), await hash(password)])).rows[0];
   setSession(res, u);
   res.json({ user: u });
