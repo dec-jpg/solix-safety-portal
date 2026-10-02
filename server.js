@@ -26,7 +26,7 @@ app.get('/logo', (req, res) => {
 });
 
 const pub = path.join(__dirname, 'public');
-app.use(express.static(pub, { index: false, maxAge: '1h' }));
+app.use(express.static(pub, { index: false, maxAge: 0 }));
 app.get('/', (req, res) => res.redirect('/admin'));
 app.get('/admin', (req, res) => res.sendFile(path.join(pub, 'admin.html')));
 app.get(['/t/:token', '/j/:token'], (req, res) => res.sendFile(path.join(pub, 'op.html')));
