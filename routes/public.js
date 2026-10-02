@@ -52,7 +52,7 @@ r.post('/identify', async (req, res) => {
 r.get('/brand', (req, res) => res.json(publicBrand()));
 
 // ---------- toolbox talks ----------
-async function talkByToken(t) { return (await q("SELECT * FROM talks WHERE token = $1 AND status <> 'draft'", [t])).rows[0]; }
+async function talkByToken(t) { return (await q("SELECT * FROM talks WHERE token = $1 AND status IN ('issued','closed')", [t])).rows[0]; }
 
 r.get('/t/:token', async (req, res) => {
   const t = await talkByToken(req.params.token);

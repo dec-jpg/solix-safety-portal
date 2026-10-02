@@ -511,29 +511,52 @@
   // ---------- toolbox talks ----------
   async function talksView(params, id) {
     if (id) return talkDetail(id);
-    const d = await api('/talks');
+    const tab = params.get('tab') || 'issued';
+    const [d, lib] = await Promise.all([api('/talks'), api('/library')]);
     const ST = { draft: ['Draft', 'draft'], issued: ['Open for signing', 'yes'], closed: ['Closed', 'grey'] };
-    setMain(`<div class="ad-head"><div><p class="muted">Write the talk once, send the link on WhatsApp. They read it, answer the questions and sign. You see who has and hasn't.</p></div>
-        ${canEdit() ? '<button class="btn" id="add">New toolbox talk</button>' : ''}</div>
-      <div class="tablewrap">${d.rows.length ? `<table><thead><tr><th>Talk</th><th>For</th><th>Status</th><th>Issued</th><th>Signed</th></tr></thead><tbody>
+    const cats = [...new Set(lib.rows.map(t => t.category || 'General'))];
+    setMain(`<div class="ad-head"><div><p class="muted">Pick a talk from the library and issue it. Send the link on WhatsApp; they read it${brand.quiz === false ? '' : ', answer the questions'} and sign. You see who has and hasn't.</p></div>
+        <div>${isOwner() && tab === 'library' ? '<button class="btn ghost" id="addLib">Add library talk</button>' : ''}${canEdit() ? '<button class="btn ghost" id="add">Write your own</button>' : ''}</div></div>
+      <div class="tabs"><button data-tab="issued" class="${tab === 'issued' ? 'on' : ''}">Issued (${d.rows.length})</button><button data-tab="library" class="${tab === 'library' ? 'on' : ''}">Library (${lib.rows.length})</button></div>
+      ${tab === 'issued' ? `<div class="tablewrap">${d.rows.length ? `<table><thead><tr><th>Talk</th><th>For</th><th>Status</th><th>Issued</th><th>Signed</th></tr></thead><tbody>
         ${d.rows.map(t => `<tr class="click" data-id="${t.id}"><td><b>${esc(t.title)}</b>${t.ref ? ` <span class="small muted">${esc(t.ref)}</span>` : ''}</td><td>${esc(t.job || 'Everyone')}</td>
           <td><span class="pill ${ST[t.status][1]}">${ST[t.status][0]}</span></td><td>${fDate(t.issued_at)}</td>
           <td>${t.status === 'draft' ? '' : `${t.signed} of ${t.expected}${t.signatures > t.signed ? ` <span class="small muted">+${t.signatures - t.signed} unmatched</span>` : ''}`}</td></tr>`).join('')}</tbody></table>`
-        : '<div class="empty"><b>No toolbox talks yet.</b>Start one and paste in the content from your usual talk.</div>'}</div>`);
+        : `<div class="empty"><b>Nothing issued yet.</b>${lib.rows.length ? 'Open the library and issue your first talk.' : 'Write a talk to get started.'}</div>`}</div>`
+      : lib.rows.length ? cats.map(c => `<h2>${esc(c)}</h2><div class="libgrid">${lib.rows.filter(t => (t.category || 'General') === c).map(t => `<div class="libcard">
+          <div><span class="k">${esc(t.ref || '')}</span><b>${esc(t.title)}</b>${t.intro ? `<p class="small muted">${esc(t.intro.length > 140 ? t.intro.slice(0, 140) + '...' : t.intro)}</p>` : ''}
+            <p class="small muted" style="margin:0">${t.parts} part${t.parts === 1 ? '' : 's'}${t.questions ? `, ${t.questions} question${t.questions === 1 ? '' : 's'}` : ''}${t.last_issued ? ` · last issued ${fDate(t.last_issued)}` : ''}</p></div>
+          <div class="libact"><button class="btn small ghost" data-prev="${t.id}">${isOwner() ? 'Edit' : 'Preview'}</button>${canEdit() ? `<button class="btn small" data-issue="${t.id}">Issue</button>` : ''}</div></div>`).join('')}</div>`).join('')
+        : '<div class="empty"><b>The library is empty.</b>Talks added by Safety Simplified appear here.</div>'}`);
+    main().querySelectorAll('[data-tab]').forEach(b => (b.onclick = () => (location.hash = '#/talks?tab=' + b.dataset.tab)));
     main().querySelectorAll('tr[data-id]').forEach(tr => (tr.onclick = () => (location.hash = '#/talks/' + tr.dataset.id)));
+    main().querySelectorAll('[data-prev]').forEach(b => (b.onclick = () => (location.hash = '#/talks/' + b.dataset.prev)));
+    main().querySelectorAll('[data-issue]').forEach(b => (b.onclick = () => issueDialog(lib.rows.find(t => String(t.id) === b.dataset.issue))));
     if (canEdit()) document.getElementById('add').onclick = async () => { const r = await api('/talks', { body: {} }); location.hash = '#/talks/' + r.row.id; };
+    if (document.getElementById('addLib')) document.getElementById('addLib').onclick = async () => { const r = await api('/talks', { body: { library: true } }); location.hash = '#/talks/' + r.row.id; };
+  }
+
+  async function issueDialog(t) {
+    const js = (await jobs()).filter(j => j.status === 'live');
+    openDlg(`Issue: ${t.title}`, `<p class="muted">You'll get a link and QR code to send out, and a register of who has signed this issue.</p>
+      ${field('Who needs to sign it', `<select id="jb"><option value="">Everyone</option>${js.map(j => `<option value="${j.id}">Team on ${esc(j.name)}</option>`).join('')}</select>`)}`,
+    '<button class="btn" id="go">Issue talk</button>');
+    $d('#go').onclick = async () => {
+      try { const r = await api(`/library/${t.id}/issue`, { body: { job_id: val('#jb') } }); dlg.close(); location.hash = '#/talks/' + r.id; } catch (e) { dlgErr(e.message); }
+    };
   }
 
   async function talkDetail(id) {
     const [d, js] = await Promise.all([api('/talks/' + id), jobs()]);
     const t = d.talk;
-    if (t.status === 'draft' && canEdit()) return talkEditor(t, js);
+    if ((t.status === 'draft' && canEdit()) || (t.status === 'library' && isOwner())) return talkEditor(t, js);
+    if (t.status === 'library') return libraryPreview(t);
     const matched = d.signoffs.filter(s => s.operative_id), unmatchedRows = d.signoffs.filter(s => !s.operative_id);
     setMain(`<p class="no-print"><a href="#/talks">Back to toolbox talks</a></p>
       <div class="ad-head"><div><h1>${esc(t.title)}</h1><p class="muted">${t.ref ? `${esc(t.ref)} · ` : ''}${t.job ? `For ${esc(t.job)}` : 'For everyone'} · Issued ${fDate(t.issued_at)}${t.status === 'closed' ? ' · <span class="pill grey">closed</span>' : ''}</p></div>
         <div class="no-print" style="display:flex;gap:.5rem;flex-wrap:wrap">${canEdit() ? `<button class="btn ghost" id="cp">Copy as new talk</button><button class="btn ghost" id="cl">${t.status === 'closed' ? 'Reopen' : 'Close signing'}</button>` : ''}
           <button class="btn ghost" id="pv">View content</button><button class="btn ghost" onclick="print()">Print register</button></div></div>
-      ${t.status === 'issued' ? `<div class="panel no-print"><h2>Link to send</h2>${shareBox(t.url, `/api/admin/talks/${t.id}/qr.svg`, `Toolbox talk: ${t.title}. Please read, answer the questions and sign.`)}</div>` : ''}
+      ${t.status === 'issued' ? `<div class="panel no-print"><h2>Link to send</h2>${shareBox(t.url, `/api/admin/talks/${t.id}/qr.svg`, `Toolbox talk: ${t.title}. Please read${t.questions.length ? ', answer the questions' : ''} and sign.`)}</div>` : ''}
       <div class="print-only"><p><b>Toolbox talk register.</b> ${esc(brand.name)}. Printed ${fDT(new Date().toISOString())}.</p></div>
       <h2>Signed (${matched.length})</h2>
       <div class="tablewrap">${matched.length ? `<table><thead><tr><th>Name</th><th>Signed</th><th>Attempts</th><th>Signature</th></tr></thead><tbody>
@@ -550,15 +573,26 @@
     document.getElementById('cl').onclick = async () => { await api(`/talks/${t.id}/close`, { body: {} }); route(); };
   }
 
+  function libraryPreview(t) {
+    setMain(`<p><a href="#/talks?tab=library">Back to the library</a></p>
+      <div class="ad-head"><div><h1>${esc(t.title)}</h1><p class="muted">${[t.ref, t.category].filter(Boolean).map(esc).join(' · ')}</p></div>${canEdit() ? '<button class="btn" id="iss">Issue this talk</button>' : ''}</div>
+      ${t.intro ? `<div class="panel"><p style="margin:0">${esc(t.intro)}</p></div>` : ''}
+      ${t.sections.map((s, i) => `<div class="panel"><span class="k" style="font-family:var(--mono);font-size:11px;color:var(--faint);font-weight:700">PART ${i + 1}</span><h2>${esc(s.heading)}</h2><p style="white-space:pre-wrap;margin:0">${esc(s.body)}</p></div>`).join('')}
+      ${t.questions.length ? `<h2>Questions</h2><div class="panel">${t.questions.map((x, i) => `<p><b>${i + 1}. ${esc(x.question)}</b><br>${x.options.map((o, j) => (j === x.answer ? `<b>${esc(o)}</b> <span class="pill yes">correct</span>` : esc(o))).join('<br>')}</p>`).join('')}</div>` : ''}`);
+    if (canEdit()) document.getElementById('iss').onclick = () => issueDialog(t);
+  }
+
   function talkEditor(row, js) {
     let sections = row.sections.map(s => ({ ...s }));
     let questions = row.questions.map(x => ({ ...x, options: [...x.options] }));
     function draw() {
-      setMain(`<p><a href="#/talks">Back to toolbox talks</a></p>
-        <div class="ad-head"><div><h1>${esc(row.title)}</h1><p class="muted">Draft. Nobody can see it until you issue it. Once issued it is locked, so everyone signs the same thing.</p></div>
-          <div style="display:flex;gap:.5rem"><button class="btn ghost" id="del">Delete draft</button><button class="btn ghost" id="save">Save draft</button><button class="btn" id="iss">Issue</button></div></div>
+      const lib = row.status === 'library';
+      setMain(`<p><a href="#/talks${lib ? '?tab=library' : ''}">Back to toolbox talks</a></p>
+        <div class="ad-head"><div><h1>${esc(row.title)}</h1><p class="muted">${lib ? 'Library talk. Changes apply to future issues; anything already issued keeps the version people signed.' : 'Draft. Nobody can see it until you issue it. Once issued it is locked, so everyone signs the same thing.'}</p></div>
+          <div style="display:flex;gap:.5rem"><button class="btn ghost" id="del">Delete</button><button class="btn ${lib ? '' : 'ghost'}" id="save">Save</button>${lib ? '' : '<button class="btn" id="iss">Issue</button>'}</div></div>
         <div class="panel"><div class="row">${field('Title', input('ti', row.title))}${field('Reference', input('rf', row.ref), 'optional, e.g. TBT-01')}
-          ${field('Who signs it', `<select id="jb"><option value="">Everyone</option>${opt(js.filter(j => j.status === 'live'), row.job_id)}</select>`)}</div>
+          ${lib ? field('Category', input('ct', row.category, 'text', 'list="cats"'), 'groups the library') + '<datalist id="cats"><option>General</option><option>Working at height</option><option>Manual handling</option><option>Health</option><option>Tools and equipment</option><option>Site safety</option></datalist>'
+            : field('Who signs it', `<select id="jb"><option value="">Everyone</option>${opt(js.filter(j => j.status === 'live'), row.job_id)}</select>`)}</div>
           ${field('Introduction', `<textarea id="in">${esc(row.intro || '')}</textarea>`, 'optional, shown first')}</div>
         <h2>Content</h2><p class="muted small">Each part is one screen on the phone. Paste in your talk and split it into short parts.</p>
         <div>${sections.map((s, i) => `<div class="ed-block"><div class="ed-tools"><button class="btn quiet small" data-su="${i}" ${i === 0 ? 'disabled' : ''}>Move up</button><button class="btn quiet small" data-sd="${i}" ${i === sections.length - 1 ? 'disabled' : ''}>Move down</button><button class="btn quiet small" data-sx="${i}" style="color:var(--brick)">Remove</button></div>
@@ -576,7 +610,7 @@
       m.querySelectorAll('[data-qq]').forEach(el => (el.oninput = () => (questions[el.dataset.qq].question = el.value)));
       m.querySelectorAll('[data-qo]').forEach(el => (el.oninput = () => { const [i, j] = el.dataset.qo.split(':'); questions[i].options[j] = el.value; }));
       m.querySelectorAll('[data-qa]').forEach(el => (el.onchange = () => (questions[el.dataset.qa].answer = Number(el.value))));
-      const keep = () => { row.title = v('ti'); row.ref = v('rf'); row.intro = v('in'); row.job_id = v('jb') || null; };
+      const keep = () => { row.title = v('ti'); row.ref = v('rf'); row.intro = v('in'); if (lib) row.category = v('ct'); else row.job_id = v('jb') || null; };
       m.querySelectorAll('[data-su],[data-sd]').forEach(b => (b.onclick = () => { keep(); const i = Number(b.dataset.su ?? b.dataset.sd), j = b.dataset.su != null ? i - 1 : i + 1; [sections[i], sections[j]] = [sections[j], sections[i]]; draw(); }));
       m.querySelectorAll('[data-sx]').forEach(b => (b.onclick = () => { keep(); sections.splice(Number(b.dataset.sx), 1); draw(); }));
       m.querySelectorAll('[data-qx]').forEach(b => (b.onclick = () => { keep(); questions.splice(Number(b.dataset.qx), 1); draw(); }));
@@ -584,10 +618,10 @@
       m.querySelectorAll('[data-qox]').forEach(b => (b.onclick = () => { keep(); const [i, j] = b.dataset.qox.split(':').map(Number); const x = questions[i]; x.options.splice(j, 1); if (x.answer === j) x.answer = 0; else if (x.answer > j) x.answer--; draw(); }));
       document.getElementById('addSec').onclick = () => { keep(); sections.push({ heading: '', body: '' }); draw(); };
       document.getElementById('addQ').onclick = () => { keep(); questions.push({ question: '', options: ['', ''], answer: 0 }); draw(); };
-      const save = async quiet => { keep(); const r = await api('/talks/' + row.id, { method: 'PUT', body: { ...row, sections, questions } }); Object.assign(row, r.row); if (!quiet) flash('Draft saved.'); };
+      const save = async quiet => { keep(); const r = await api('/talks/' + row.id, { method: 'PUT', body: { ...row, sections, questions } }); Object.assign(row, r.row); if (!quiet) flash('Saved.'); };
       document.getElementById('save').onclick = () => save().catch(e => flash(e.message, 'err'));
-      document.getElementById('del').onclick = async () => { if (!confirm('Delete this draft?')) return; try { await api('/talks/' + row.id, { method: 'DELETE' }); location.hash = '#/talks'; } catch (e) { flash(e.message, 'err'); } };
-      document.getElementById('iss').onclick = async () => {
+      document.getElementById('del').onclick = async () => { if (!confirm(`Delete ${lib ? 'this library talk' : 'this draft'}?`)) return; try { await api('/talks/' + row.id, { method: 'DELETE' }); location.hash = '#/talks' + (lib ? '?tab=library' : ''); } catch (e) { flash(e.message, 'err'); } };
+      if (!lib) document.getElementById('iss').onclick = async () => {
         try {
           await save(true);
           if (!confirm(`Issue "${row.title}"? You'll get a link to send out, and the content is locked.`)) return;

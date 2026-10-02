@@ -258,3 +258,11 @@ body.signin { background: var(--paper); min-height: 100vh; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 .userchip button { white-space: nowrap; }
+
+/* Talk library */
+.libgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-bottom: 1rem; }
+.libcard { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: space-between; gap: .8rem; }
+.libcard .k { font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .05em; color: var(--oak); }
+.libcard b { display: block; font-size: .98rem; margin: 2px 0 6px; }
+.libcard p { margin: 0 0 .4rem; }
+.libact { display: flex; gap: .4rem; justify-content: flex-end; }

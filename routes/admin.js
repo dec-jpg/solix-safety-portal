@@ -298,20 +298,40 @@ r.get('/talks', view, async (req, res) => {
       (SELECT COUNT(*)::int FROM signoffs s WHERE s.talk_id = t.id) AS signatures,
       (SELECT COUNT(DISTINCT s.operative_id)::int FROM signoffs s WHERE s.talk_id = t.id AND s.operative_id IS NOT NULL) AS signed,
       ${EXPECTED_SQL} AS expected
-      FROM talks t LEFT JOIN jobs j ON j.id = t.job_id
+      FROM talks t LEFT JOIN jobs j ON j.id = t.job_id WHERE t.status <> 'library'
       ORDER BY CASE t.status WHEN 'draft' THEN 0 WHEN 'issued' THEN 1 ELSE 2 END, COALESCE(t.issued_at, t.created_at) DESC`)).rows;
   res.json({ rows });
 });
 
+// The talk library: ready-made talks, issued as many times as needed (each issue has its own link and register).
+r.get('/library', view, async (req, res) => {
+  const rows = (await q(`SELECT t.id, t.ref, t.title, t.intro, t.category, jsonb_array_length(t.sections) AS parts, jsonb_array_length(t.questions) AS questions,
+      (SELECT MAX(i.issued_at) FROM talks i WHERE i.source_id = t.id) AS last_issued,
+      (SELECT COUNT(*)::int FROM talks i WHERE i.source_id = t.id) AS times_issued
+      FROM talks t WHERE t.status = 'library' AND ($1 OR jsonb_array_length(t.sections) > 0) ORDER BY t.ref NULLS LAST, t.title`, [req.user.role === 'owner'])).rows;
+  res.json({ rows });
+});
+
+r.post('/library/:id/issue', edit, async (req, res) => {
+  const src = (await q("SELECT * FROM talks WHERE id = $1 AND status = 'library'", [req.params.id])).rows[0];
+  if (!src) return res.status(404).json({ error: 'Not found.' });
+  if (!src.sections.length) return res.status(400).json({ error: 'This talk has no content yet.' });
+  const row = (await q(`INSERT INTO talks (ref, title, intro, category, sections, questions, job_id, status, token, issued_at, created_by, source_id)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,'issued',$8,NOW(),$9,$10) RETURNING id`,
+    [src.ref, src.title, src.intro, src.category, JSON.stringify(src.sections), JSON.stringify(src.questions), int((req.body || {}).job_id), token(12), req.user.name, src.id])).rows[0];
+  res.json({ id: row.id });
+});
+
 r.post('/talks', edit, async (req, res) => {
   const b = req.body || {};
+  if (b.library && req.user.role !== 'owner') return res.status(403).json({ error: 'Only Safety Simplified can add to the library.' });
   let base = { ref: null, title: 'New toolbox talk', intro: null, sections: [], questions: [], job_id: null };
   if (int(b.copy_from)) {
     const src = (await q('SELECT * FROM talks WHERE id = $1', [int(b.copy_from)])).rows[0];
     if (src) base = { ref: src.ref, title: src.title, intro: src.intro, sections: src.sections, questions: src.questions, job_id: null };
   }
-  const row = (await q(`INSERT INTO talks (ref, title, intro, sections, questions, job_id, token, created_by) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-    [base.ref, base.title, base.intro, JSON.stringify(base.sections), JSON.stringify(base.questions), base.job_id, token(12), req.user.name])).rows[0];
+  const row = (await q(`INSERT INTO talks (ref, title, intro, sections, questions, job_id, token, created_by, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
+    [base.ref, base.title, base.intro, JSON.stringify(base.sections), JSON.stringify(base.questions), base.job_id, token(12), req.user.name, b.library ? 'library' : 'draft'])).rows[0];
   res.json({ row });
 });
 
@@ -330,11 +350,12 @@ r.get('/talks/:id', view, async (req, res) => {
 r.put('/talks/:id', edit, async (req, res) => {
   const cur = (await q('SELECT status FROM talks WHERE id = $1', [req.params.id])).rows[0];
   if (!cur) return res.status(404).json({ error: 'Not found.' });
-  if (cur.status !== 'draft') return res.status(400).json({ error: 'Issued talks are locked so everyone signs the same thing. Make a copy to change it.' });
+  if (cur.status === 'library' && req.user.role !== 'owner') return res.status(403).json({ error: 'Library talks are maintained by Safety Simplified.' });
+  if (!['draft', 'library'].includes(cur.status)) return res.status(400).json({ error: 'Issued talks are locked so everyone signs the same thing. Make a copy to change it.' });
   const p = talkPayload(req.body || {});
   if (!p.title) return res.status(400).json({ error: 'Give the talk a title.' });
-  const row = (await q('UPDATE talks SET ref=$1, title=$2, intro=$3, sections=$4, questions=$5, job_id=$6, updated_at=NOW() WHERE id=$7 RETURNING *',
-    [p.ref, p.title, p.intro, JSON.stringify(p.sections), JSON.stringify(p.questions), p.job_id, req.params.id])).rows[0];
+  const row = (await q('UPDATE talks SET ref=$1, title=$2, intro=$3, sections=$4, questions=$5, job_id=$6, category=COALESCE($7, category), updated_at=NOW() WHERE id=$8 RETURNING *',
+    [p.ref, p.title, p.intro, JSON.stringify(p.sections), JSON.stringify(p.questions), cur.status === 'library' ? null : p.job_id, clean((req.body || {}).category, 60), req.params.id])).rows[0];
   res.json({ row });
 });
 
@@ -353,7 +374,9 @@ r.post('/talks/:id/close', edit, async (req, res) => {
 });
 
 r.delete('/talks/:id', edit, async (req, res) => {
-  const row = (await q("DELETE FROM talks WHERE id = $1 AND status = 'draft' RETURNING id", [req.params.id])).rows[0];
+  const t = (await q('SELECT status FROM talks WHERE id = $1', [req.params.id])).rows[0];
+  if (t && t.status === 'library' && req.user.role !== 'owner') return res.status(403).json({ error: 'Library talks are maintained by Safety Simplified.' });
+  const row = (await q("DELETE FROM talks WHERE id = $1 AND status IN ('draft','library') RETURNING id", [req.params.id])).rows[0];
   if (!row) return res.status(400).json({ error: 'Only drafts can be deleted.' });
   res.json({ ok: true });
 });
