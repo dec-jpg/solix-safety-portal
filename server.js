@@ -16,6 +16,7 @@ app.get('/healthz', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/p', require('./routes/public'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/tresor', require('./routes/tresor'));
 
 // Branding, from this client's build
 app.get('/api/brand', (req, res) => res.json(publicBrand()));
