@@ -56,6 +56,15 @@
     {
       "name": "Emergency First Aid at Work",
       "months": 36
+    },
+    {
+      "name": "NVQ Level 3 Fenestration Installation"
+    },
+    {
+      "name": "Level 3 Diploma Occupational Work Supervision"
+    },
+    {
+      "name": "NEBOSH General Certificate"
     }
   ],
   "talks": [
@@ -655,5 +664,273 @@
       "questions": []
     }
   ],
-  "quiz": false
+  "quiz": false,
+  "operatives": [
+    {
+      "name": "D Jones",
+      "role": "Director",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "29582 GQA",
+          "expires_on": "2028-05-31"
+        },
+        {
+          "type": "NVQ Level 3 Fenestration Installation"
+        },
+        {
+          "type": "Level 3 Diploma Occupational Work Supervision",
+          "number": "601/4243/1",
+          "expires_on": "2027-09-30"
+        }
+      ]
+    },
+    {
+      "name": "Stuart Neal",
+      "role": "Director",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "369897 GQA",
+          "expires_on": "2029-10-31"
+        },
+        {
+          "type": "NVQ Level 3 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "R Bayes",
+      "role": "Supervisor",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "01796869",
+          "expires_on": "2030-08-31"
+        },
+        {
+          "type": "NVQ Level 3 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "I Mannion",
+      "role": "Supervisor",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "01385082",
+          "expires_on": "2027-11-30"
+        },
+        {
+          "type": "NVQ Level 3 Fenestration Installation"
+        },
+        {
+          "type": "NEBOSH General Certificate",
+          "number": "C9171"
+        }
+      ]
+    },
+    {
+      "name": "A Scholes",
+      "role": "Installer",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "22836 GQA",
+          "expires_on": "2030-10-31"
+        },
+        {
+          "type": "NVQ Level 3 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "Craig Drake",
+      "role": "Installer",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "89414 GQA",
+          "expires_on": "2030-09-30"
+        },
+        {
+          "type": "NVQ Level 3 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "N Rushworth",
+      "role": "Installer",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "226325 GQA",
+          "expires_on": "2031-09-30"
+        },
+        {
+          "type": "NVQ Level 3 Fenestration Installation"
+        },
+        {
+          "type": "Level 3 Diploma Occupational Work Supervision",
+          "number": "603/4243/1",
+          "expires_on": "2027-03-31"
+        }
+      ]
+    },
+    {
+      "name": "Chad Drake",
+      "role": "Installer",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "75942 GQA",
+          "expires_on": "2027-11-30"
+        },
+        {
+          "type": "NVQ Level 2 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "J Jones",
+      "role": "Installer",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "75943 GQA",
+          "expires_on": "2027-05-31"
+        },
+        {
+          "type": "NVQ Level 2 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "Alan Taylor",
+      "role": "Installer",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "22837 GQA",
+          "expires_on": "2026-10-31"
+        },
+        {
+          "type": "NVQ Level 2 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "D Brookes",
+      "role": "Customer Care",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "75944 GQA",
+          "expires_on": "2028-06-30"
+        },
+        {
+          "type": "NVQ Level 2 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "M Pearson",
+      "role": "Installer",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "277701 GQA",
+          "expires_on": "2028-02-29"
+        },
+        {
+          "type": "NVQ Level 2 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "J Bloor",
+      "role": "Installer",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "94005 GQA",
+          "expires_on": "2026-11-30"
+        },
+        {
+          "type": "NVQ Level 2 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "B Bloor",
+      "role": "Installer",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "198308 GQA",
+          "expires_on": "2026-10-31"
+        },
+        {
+          "type": "NVQ Level 2 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "L Higham",
+      "role": "Labourer",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "14005612",
+          "expires_on": "2027-08-31"
+        },
+        {
+          "type": "NVQ Level 2 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "D Brown",
+      "role": "Installer",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "26958 GQA",
+          "expires_on": "2027-05-31"
+        },
+        {
+          "type": "NVQ Level 3 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "S Slater",
+      "role": "Installer",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "18394 GQA",
+          "expires_on": "2031-05-31"
+        },
+        {
+          "type": "NVQ Level 2 Fenestration Installation"
+        }
+      ]
+    },
+    {
+      "name": "K Mason",
+      "role": "Customer Care",
+      "quals": [
+        {
+          "type": "CSCS card",
+          "number": "20021 GQA",
+          "expires_on": "2030-09-30"
+        },
+        {
+          "type": "NVQ Level 3 Fenestration Installation"
+        }
+      ]
+    }
+  ]
 }
