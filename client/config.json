@@ -14,10 +14,6 @@
       "months": 60
     },
     {
-      "name": "Asbestos Awareness",
-      "months": 12
-    },
-    {
       "name": "Manual Handling",
       "months": 36
     },
@@ -931,5 +927,8 @@
         }
       ]
     }
+  ],
+  "retired_training": [
+    "Asbestos Awareness"
   ]
 }
