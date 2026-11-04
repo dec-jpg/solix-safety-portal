@@ -122,6 +122,7 @@
     jobs: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/>',
     talks: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/>',
     unmatched: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+    policies: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
     settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
     users: '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/>',
   };
@@ -129,10 +130,11 @@
     ['Overview'], ['', 'Dashboard'],
     ['People'], ['operatives', '{Ops}'], ['matrix', 'Training matrix'],
     ['Site work'], ['jobs', 'Jobs & RAMS'], ['talks', 'Toolbox talks'], ['unmatched', 'Signatures to match'],
+    ['Company'], ['policies', 'Policies'],
     ['Admin', 'admin'], ['users', 'Users', 'admin'], ['settings', 'Safety Simplified', 'owner'],
   ];
   const CRUMB = { '': 'Health & safety overview', operatives: 'Your {ops} and their details', matrix: 'Cards, tickets and expiry dates', jobs: 'RAMS, drawings and sign-off per job',
-    talks: 'Issue, sign and track', unmatched: 'Signatures from people not on the register', settings: 'Training list and account settings', users: 'Office logins' };
+    talks: 'Issue, sign and track', unmatched: 'Signatures from people not on the register', settings: 'Training list and account settings', users: 'Office logins', policies: 'Company policies, kept current by Safety Simplified and signed by the director' };
 
   function shell() {
     const allowed = r => !r || (r === 'owner' ? isOwner() : isAdmin());
@@ -168,7 +170,7 @@
     document.getElementById('vt').textContent = tx(nav ? nav[1] : 'Dashboard');
     document.getElementById('vc').textContent = tx(`${brand.name} · ${CRUMB[view || ''] || ''}`);
     window.scrollTo(0, 0);
-    const views = { '': dashboard, operatives, matrix: matrixView, jobs: jobsView, talks: talksView, unmatched, settings, users };
+    const views = { '': dashboard, operatives, matrix: matrixView, jobs: jobsView, talks: talksView, unmatched, settings, users, policies: policiesView };
     setMain('<p class="muted">Loading</p>');
     (views[view] || dashboard)(params, id).catch(e => setMain(`<div class="note err">${esc(e.message)}</div>`));
     updateCounts();
@@ -655,6 +657,46 @@
   }
 
   // ---------- settings ----------
+  // ---------- company policies ----------
+  function adminSigPad(canvas) {
+    const ctx = canvas.getContext('2d'); let drawing = false, dirty = false;
+    const r0 = canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    canvas.width = r0.width * dpr; canvas.height = r0.height * dpr; ctx.scale(dpr, dpr); ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#18201b';
+    const pt = e => { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    canvas.addEventListener('pointerdown', e => { drawing = true; canvas.setPointerCapture(e.pointerId); const p = pt(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+    canvas.addEventListener('pointermove', e => { if (!drawing) return; const p = pt(e); ctx.lineTo(p.x, p.y); ctx.stroke(); dirty = true; });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => canvas.addEventListener(t, () => { drawing = false; }));
+    return { clear() { ctx.clearRect(0, 0, canvas.width, canvas.height); dirty = false; }, empty: () => !dirty, data: () => canvas.toDataURL('image/png') };
+  }
+  async function policiesView() {
+    const d = await api('/policies');
+    if (!d.version) return setMain(`<div class="note warn">No policies have arrived from Safety Simplified yet.</div>${isOwner() ? '<p><button class="btn ghost" id="sync">Fetch now</button></p>' : ''}`), isOwner() && (document.getElementById('sync').onclick = async () => { const r = await api('/policies/sync', { body: {} }); flash(r.ok ? 'Fetched.' : r.reason, r.ok ? 'ok' : 'err'); route(); });
+    const status = d.needs_signature
+      ? `<div class="note warn"><b>${d.due_annual ? 'Annual review due.' : d.signed ? '' : `Version ${d.version} needs the director's signature.`}</b> ${d.last && !d.signed ? `Version ${d.last.version} was signed by ${esc(d.last.signed_name)} on ${fDate(d.last.signed_at)}.` : ''} ${d.note ? `What changed: ${esc(d.note)}` : ''}</div>`
+      : `<div class="note ok">Version ${d.version} signed by <b>${esc(d.signed ? d.signed.signed_name : d.last.signed_name)}</b>, ${esc((d.signed || d.last).signed_role || 'Director')}, on ${fDate((d.signed || d.last).signed_at)}.</div>`;
+    setMain(`<div class="ad-head"><div><p class="muted">${d.policies.length} policies, version ${d.version}${d.published_at ? `, issued ${fDate(d.published_at)}` : ''}. Maintained by Safety Simplified; the current signed set is what goes to SSIP assessors, principal contractors and clients.</p></div>
+        <div class="no-print" style="display:flex;gap:.5rem;flex-wrap:wrap"><a class="btn ghost" href="/api/admin/policies/pdf" target="_blank" rel="noopener">Open PDF</a><a class="btn ghost" href="/api/admin/policies/pdf?download=1">Download PDF</a>${isAdmin() && d.needs_signature ? '<button class="btn" id="sign">Sign the policies</button>' : ''}</div></div>
+      ${status}
+      ${d.about_editable ? `<div class="panel no-print"><h2>Trade line</h2><p class="small muted">Fills in "{{company}} is …" in the policies. Safety Simplified only.</p><div class="linkbox"><input id="about" value="${esc(d.vars.about)}"><button class="btn small" id="aboutsave">Save</button><button class="btn small ghost" id="sync">Fetch latest</button></div></div>` : ''}
+      <div class="panel"><h2>Contents</h2><ol class="small" style="columns:2;margin:0;padding-left:1.2rem">${d.policies.map(p => `<li><a href="#pol-${esc(p.key)}">${esc(p.title)}</a></li>`).join('')}</ol></div>
+      ${d.policies.map((p, i) => `<div class="panel pol-doc" id="pol-${esc(p.key)}"><h2>${i + 1}. ${esc(p.title)}</h2>${p.blocks.map(b => b.t === 'h' ? `<h3>${esc(b.text)}</h3>` : b.t === 'ul' ? `<ul>${b.items.map(it => `<li>${esc(it)}</li>`).join('')}</ul>` : `<p>${esc(b.text)}</p>`).join('')}</div>`).join('')}
+      ${d.signings.length ? `<div class="panel"><h2>Signing record</h2><div class="tablewrap" style="box-shadow:none"><table><thead><tr><th>Version</th><th>Signed by</th><th>Position</th><th>Date</th><th>Signature</th></tr></thead><tbody>
+        ${d.signings.map(s => `<tr><td>${s.version}</td><td>${esc(s.signed_name)}</td><td>${esc(s.signed_role || '')}</td><td>${fDT(s.signed_at)}</td><td><img src="/api/admin/policies/signings/${s.id}/signature" alt="" style="height:34px"></td></tr>`).join('')}</tbody></table></div></div>` : ''}`);
+    if (document.getElementById('sign')) document.getElementById('sign').onclick = () => {
+      openDlg('Sign the company policies', `<p class="muted">By signing, the director confirms that these policies (version ${d.version}) are approved and issued under their authority for ${esc(brand.name)}.</p>
+        <div class="row">${field('Full name', input('sn', d.last ? d.last.signed_name : '', 'text', 'autocomplete="name"'))}${field('Position', input('sr', d.last ? d.last.signed_role || 'Director' : 'Director'))}</div>
+        <label>Signature</label><div class="sig-wrap"><canvas id="sig"></canvas></div><p style="margin:0 0 1rem;text-align:right"><button class="btn quiet small" id="clr">Clear</button></p>`,
+      '<button class="btn" id="go">Sign</button>');
+      const pad = adminSigPad($d('#sig')); $d('#clr').onclick = () => pad.clear();
+      $d('#go').onclick = async () => {
+        if (pad.empty()) return dlgErr('Sign in the box first.');
+        try { await api('/policies/sign', { body: { name: val('#sn'), role: val('#sr'), signature: pad.data() } }); dlg.close(); flash('Policies signed.'); route(); } catch (e) { dlgErr(e.message); }
+      };
+    };
+    if (document.getElementById('aboutsave')) document.getElementById('aboutsave').onclick = async () => { await api('/policies/about', { method: 'PUT', body: { about: v('about') } }); flash('Saved.'); route(); };
+    if (document.getElementById('sync')) document.getElementById('sync').onclick = async () => { const r = await api('/policies/sync', { body: {} }); flash(r.ok ? (r.added ? `Version ${r.version} received.` : `Already on version ${r.version}.`) : r.reason, r.ok ? 'ok' : 'err'); route(); };
+  }
+
   async function settings() {
     if (!isOwner()) return setMain('<div class="note warn">This page is for Safety Simplified.</div>');
     const [acc, ts] = await Promise.all([api('/account'), types(true)]);

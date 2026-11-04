@@ -17,6 +17,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/p', require('./routes/public'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/tresor', require('./routes/tresor'));
+app.use('/api/admin/policies', require('./routes/policies'));
 
 // Branding, from this client's build
 app.get('/api/brand', (req, res) => res.json(publicBrand()));
@@ -44,4 +45,5 @@ app.use((err, req, res, next) => {
   await loadSecret();
   const port = process.env.PORT || 3000;
   app.listen(port, () => console.log(`Portal listening on ${port}`));
+  require('./lib/policies').schedule();
 })().catch(e => { console.error('Startup failed:', e); process.exit(1); });

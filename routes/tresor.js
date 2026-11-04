@@ -41,7 +41,9 @@ r.get('/summary', async (req, res) => {
   const recent = (await q(`SELECT s.signed_at, COALESCE(o.full_name, s.name_given) AS name, t.title AS talk, d.title AS doc
       FROM signoffs s LEFT JOIN operatives o ON o.id = s.operative_id LEFT JOIN talks t ON t.id = s.talk_id LEFT JOIN documents d ON d.id = s.document_id
       ORDER BY s.signed_at DESC LIMIT 8`)).rows;
-  res.json({ company: client.company, short: client.short || client.company, portal: client.portal, colour: client.colour, counts, talks, tickets, recent, at: new Date().toISOString() });
+  let policies = null;
+  try { const c = await require('../lib/policies').current(); if (c) policies = { version: c.version, signed_version: c.signed ? c.version : (c.last ? c.last.version : null), signed_by: c.signed ? c.signed.signed_name : (c.last ? c.last.signed_name : null), signed_at: c.signed ? c.signed.signed_at : (c.last ? c.last.signed_at : null), needs_signature: c.needs_signature }; } catch { /* module not deployed */ }
+  res.json({ policies, company: client.company, short: client.short || client.company, portal: client.portal, colour: client.colour, counts, talks, tickets, recent, at: new Date().toISOString() });
 });
 
 module.exports = r;
