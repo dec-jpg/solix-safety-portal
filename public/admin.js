@@ -359,7 +359,7 @@
     const [m, js] = await Promise.all([api('/matrix' + (job ? `?job=${job}` : '')), jobs()]);
     const jobName = job ? (js.find(j => String(j.id) === job) || {}).name : '';
     setMain(`<div class="ad-head"><div><p class="muted">${jobName ? `Team on ${esc(jobName)}` : 'Everyone currently working for you'}, as of ${fDate(new Date().toISOString())}.</p></div>
-        <div class="no-print" style="display:flex;gap:.5rem"><a class="btn ghost" href="/api/admin/matrix.csv${job ? `?job=${job}` : ''}">Download spreadsheet</a><button class="btn ghost" onclick="print()">Print</button></div></div>
+        <div class="no-print" style="display:flex;gap:.5rem"><a class="btn ghost" href="/api/admin/matrix.pdf${job ? `?job=${job}` : ''}">Download PDF</a><a class="btn ghost" href="/api/admin/matrix.csv${job ? `?job=${job}` : ''}">Download spreadsheet</a><button class="btn ghost" onclick="print()">Print</button></div></div>
       <div class="toolbar"><div class="field"><label>Show</label><select id="jb"><option value="">Everyone</option>${opt(js.filter(j => j.status === 'live'), job)}</select></div></div>
       <div class="legend"><span class="valid">In date</span><span class="expiring">Expires within 30 days</span><span class="expired">Expired or required and missing</span><span class="none">Not held</span></div>
       ${m.operatives.length && m.types.length ? `<div class="tablewrap"><table class="matrix"><thead><tr><th>Name</th>${m.types.map(t => `<th class="rot"><div>${esc(t.name)}${t.required ? ' *' : ''}</div></th>`).join('')}</tr></thead><tbody>

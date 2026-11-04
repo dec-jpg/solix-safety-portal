@@ -3,6 +3,7 @@ const express = require('express');
 const multer = require('multer');
 const QRCode = require('qrcode');
 const { q } = require('../lib/db');
+const client = require('../lib/client');
 const { requireUser, hash } = require('../lib/auth');
 const { token, clean, normPhone, csv } = require('../lib/util');
 const { getSetting, setSetting } = require('../lib/brand');
@@ -167,6 +168,15 @@ async function matrix(req) {
   return { types, operatives: ops, cells };
 }
 r.get('/matrix', view, async (req, res) => res.json(await matrix(req)));
+r.get('/matrix.pdf', view, async (req, res) => {
+  const m = await matrix(req);
+  const job = int(req.query.job) ? (await q('SELECT name FROM jobs WHERE id = $1', [int(req.query.job)])).rows[0] : null;
+  const { render } = require('../lib/matrixpdf');
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${client.company.replace(/[^\w ]+/g, '')} - Training Matrix - ${new Date().toISOString().slice(0, 10)}.pdf"`);
+  render(m, { title: `${client.company}: Training Matrix${job ? ` (${job.name})` : ''}`, subtitle: `Cards, tickets and expiry dates as of ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}` }).pipe(res);
+});
+
 r.get('/matrix.csv', view, async (req, res) => {
   const m = await matrix(req);
   const fmt = d => (d ? d.split('-').reverse().join('/') : '');

@@ -4,7 +4,9 @@
   "description": "Solix Site Safety",
   "main": "server.js",
   "private": true,
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node server.js",
     "migrate": "node scripts/migrate.js"
@@ -13,6 +15,7 @@
     "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
     "multer": "^2.4.0",
+    "pdfkit": "^0.15.0",
     "pg": "^8.23.1",
     "qrcode": "^1.5.4"
   }
