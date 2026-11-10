@@ -1,12 +1,12 @@
 {
  "title": "Method Statement & Risk Assessments",
  "ref": "SX 001",
- "version": 1,
+ "version": 2,
  "defaults": {
   "author": "Frank Boydell",
-  "reviewer": "Stuart Neale",
-  "emergency_contact": "Stuart Neale, Director",
-  "site_supervisor": "Stuart Neale",
+  "reviewer": "David Jones",
+  "emergency_contact": "David Jones, Director",
+  "site_supervisor": "David Jones",
   "scope": "Supply and installation of windows, external doors and glazing to a new build housing development.",
   "review_months": 12
  },
@@ -1196,5 +1196,5 @@
  ],
  "pc_signoff_text": "Any changes to the agreed working practices must be confirmed between the Principal Contractor and Contractor. \n\nThe RAMS will need revising and the new measures must be implemented on site. If the agreed practices are not implemented by the Principal Contractor, we reserve the right to stop work on site & will not be held liable for any additional costs incurred.",
  "operative_signoff_text": "In signing these site-specific RAMS, I agree to the following:\n\nI confirm that I have read and fully understood the content of this site-specific RAMS.\nI confirm to work to the practices in these site-specific RAMS and will record all the necessary documentation required from my role and responsibilities.\nI fully understand all the requirements within these site-specific RAMS and understand that failure to comply with its contents will result in disciplinary procedures.\nI will stop work and report any accidents, near misses or dangerous occurrences immediately to the site manager and my employer.\nI have adequate training, knowledge, training and experience in the work required to be undertaken and will request information, instruction, training, and supervision if required.",
- "note": "Built for Solix Frame Solutions from the Safety Simplified window and door installation RAMS; reviewed by Safety Simplified before first issue"
+ "note": "Sign-off, reviewer and emergency contact set to David Jones (Director)"
 }
