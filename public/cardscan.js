@@ -72,12 +72,26 @@ window.CardScan = (() => {
     return { issued: issued ? issued.iso : '', expires: expires ? expires.iso : '', dates: ds };
   }
 
+  // Fix the usual letter-for-digit misreads inside a token that is mostly digits.
+  const digitise = tok => tok.replace(/[OoQD]/g, '0').replace(/[Il|!]/g, '1').replace(/[Zz]/g, '2').replace(/[Ss$]/g, '5').replace(/[Bb]/g, '8').replace(/[Gg]/g, '6').replace(/[Tt]/g, '7');
+  const mostlyDigits = tok => { const d = (tok.match(/\d/g) || []).length; return d >= 6 && d / tok.replace(/[\s\-]/g, '').length >= 0.7; };
+
   function pickNumber(text) {
     const t = text.replace(/[OoQ](?=\d)|(?<=\d)[OoQ]/g, '0').replace(/(?<=\d)[Il|](?=\d)/g, '1');
-    const labelled = /(?:REG(?:ISTRATION)?\.?\s*(?:NO|NUMBER|#)?|CARD\s*(?:NO|NUMBER|#)|CERT(?:IFICATE)?\s*(?:NO|NUMBER|#)|LICEN[CS]E\s*(?:NO|NUMBER)?|ID\s*(?:NO|NUMBER)?|NO\.?|NUMBER|#)\s*[:.]?\s*([A-Z]{0,3}[\s\-]?\d[\d\s\-]{5,14}\d)/i.exec(t);
-    if (labelled) return labelled[1].replace(/\s+/g, '').replace(/-+/g, '-');
     const dateSpans = findDates(t).map(d => [d.idx, d.idx + d.raw.length]);
-    const runs = [...t.matchAll(/\b\d[\d ]{6,13}\d\b/g)].filter(m => !dateSpans.some(([a, b]) => m.index >= a && m.index < b)).map(m => m[0].replace(/\s+/g, ''));
+    const inDate = i => dateSpans.some(([a, b]) => i >= a && i < b);
+    // 1. a labelled number: Reg No, Registration Number, Card No, Licence No, Cert No, ID
+    const labelled = /(?:REG(?:ISTRATION)?\.?\s*(?:NO|NUMBER|#)?|CARD\s*(?:NO|NUMBER|#)|CERT(?:IFICATE)?\s*(?:NO|NUMBER|#)|LICEN[CS]E\s*(?:NO|NUMBER)?|ID\s*(?:NO|NUMBER)?|NO\.?|NUMBER|#)\s*[:.]?\s*([A-Z]{0,3}[\s\-]?[0-9A-Z][0-9A-Z\s\-]{5,14}[0-9A-Z])/i.exec(t);
+    if (labelled && !inDate(labelled.index + labelled[0].indexOf(labelled[1]))) {
+      // stop at the first word that is clearly a word (two or more letters together), e.g. "88 Valid"
+      const raw = labelled[1].trim().replace(/(\d)\s*[A-Za-z]{2,}.*$/, '$1').trim(); const body = raw.replace(/^[A-Z]{1,3}[\s\-]?/i, '');
+      if (mostlyDigits(body)) return (raw.slice(0, raw.length - body.length) + digitise(body)).replace(/\s+/g, '').replace(/-+/g, '-');
+    }
+    // 2. the longest run of (mostly) digits that is not a date, allowing spaces and the odd misread letter
+    const runs = [...t.matchAll(/\b[0-9A-Z][0-9A-Z ]{5,14}[0-9A-Z]\b/g)].map(m => { m[0] = m[0].replace(/(\d)\s*[A-Za-z]{2,}.*$/, '$1'); return m; })
+      .filter(m => !inDate(m.index) && mostlyDigits(m[0]) && !/^(19|20)\d{2}\b/.test(m[0]) && !/^0[1-9]|^[12]\d|^3[01]/.test(m[0].replace(/\s/g, '').slice(0, 2)) || (!inDate(m.index) && mostlyDigits(m[0]) && m[0].replace(/\s/g, '').length >= 7))
+      .map(m => digitise(m[0]).replace(/\s+/g, ''))
+      .filter(x => /^\d{6,14}$/.test(x));
     runs.sort((a, b) => b.length - a.length);
     return runs[0] || '';
   }
@@ -101,14 +115,25 @@ window.CardScan = (() => {
   async function scan(file, { types = [], operativeName = '', onProgress } = {}) {
     const [{ ocr, upload }, w] = await Promise.all([prepare(file), getWorker(onProgress)]);
     const { data } = await w.recognize(ocr);
-    const text = (data.text || '').replace(/[ \t]+/g, ' ');
+    let text = (data.text || '').replace(/[ \t]+/g, ' ');
+    let number = pickNumber(text);
+    if (!number) {
+      // Nothing number-like read the right way up: try the card turned on its side, both ways, and take any number from there.
+      for (const deg of [90, 270]) {
+        const r = document.createElement('canvas'); r.width = ocr.height; r.height = ocr.width;
+        const cx = r.getContext('2d'); cx.translate(r.width / 2, r.height / 2); cx.rotate(deg * Math.PI / 180); cx.drawImage(ocr, -ocr.width / 2, -ocr.height / 2);
+        const side = (await w.recognize(r)).data.text || '';
+        number = pickNumber(side);
+        if (number) { text += '\n[read sideways] ' + side.trim(); break; }
+      }
+    }
     const d = pickDates(text);
     const type = pickType(text, types);
     const sn = surname(operativeName);
     const nameMatch = sn ? (sn.length > 2 && text.toUpperCase().includes(sn)) : null;
     const b = atob(upload.split(',')[1]); const bytes = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) bytes[i] = b.charCodeAt(i);
     const photo = new File([bytes], (file.name || 'card').replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
-    return { text, number: pickNumber(text), issued: d.issued, expires: d.expires, type, nameMatch, confidence: data.confidence, photo, dates: d.dates.map(x => x.raw) };
+    return { text, number, issued: d.issued, expires: d.expires, type, nameMatch, confidence: data.confidence, photo, dates: d.dates.map(x => x.raw) };
   }
 
   return { scan, pickDates, pickNumber, pickType };
