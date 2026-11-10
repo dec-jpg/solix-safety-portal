@@ -190,13 +190,13 @@ r.get('/matrix.csv', view, async (req, res) => {
 
 // ---------- training types ----------
 r.get('/qual-types', view, async (req, res) => res.json({ rows: (await q('SELECT * FROM qual_types ORDER BY active DESC, sort, name')).rows }));
-r.post('/qual-types', owner, async (req, res) => {
+r.post('/qual-types', admin, async (req, res) => {
   const b = req.body || {};
   if (!clean(b.name)) return res.status(400).json({ error: 'Enter a name.' });
   const sort = (await q('SELECT COALESCE(MAX(sort), 0) + 1 AS s FROM qual_types')).rows[0].s;
   res.json({ row: (await q('INSERT INTO qual_types (name, required, validity_months, sort) VALUES ($1,$2,$3,$4) RETURNING *', [clean(b.name, 120), bool(b.required), int(b.validity_months), sort])).rows[0] });
 });
-r.put('/qual-types/:id', owner, async (req, res) => {
+r.put('/qual-types/:id', admin, async (req, res) => {
   const b = req.body || {};
   if (!clean(b.name)) return res.status(400).json({ error: 'Enter a name.' });
   await q('UPDATE qual_types SET name = $1, required = $2, validity_months = $3, active = $4, sort = COALESCE($5, sort) WHERE id = $6',

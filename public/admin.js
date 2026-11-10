@@ -344,7 +344,10 @@
     openDlg(isNew ? 'Add training' : `Edit ${x.type_name}`, `
       ${window.CardScan && window.Tesseract ? `<div class="scanbox" id="scanbox"><div><b>Scan the card</b><div class="small muted">Take a photo of the card and the number, dates and type are filled in for you to check. The photo is kept as the copy.</div></div>
         <label class="btn ghost small" for="sc">Scan card</label><input id="sc" type="file" accept="image/*" capture="environment" class="hidden"></div><div id="scanout"></div>` : ''}
-      ${isNew ? field('Training', `<select id="ty"><option value="">Choose</option>${opt(ts, x.qual_type_id)}</select>`) : ''}
+      ${isNew ? field('Training', `<select id="ty"><option value="">Choose</option>${opt(ts, x.qual_type_id)}${isAdmin() ? '<option value="__new">Something else: add a new type of training</option>' : ''}</select>`) : ''}
+      ${isNew && isAdmin() ? `<div id="newtype" class="hidden" style="background:var(--tint);border-radius:10px;padding:.8rem 1rem .2rem;margin-bottom:1rem">
+        <div class="row">${field('Name of the training', input('ntn', '', 'text', 'placeholder="e.g. Fire Marshal"'))}${field('Valid for (months)', input('ntm', '', 'number', 'min="1" placeholder="leave empty if it does not expire"'))}</div>
+        <label class="check" style="margin-bottom:.8rem"><input type="checkbox" id="ntr"> Required for everyone on site</label></div>` : ''}
       ${field('Card or certificate number', input('nu', x.number))}
       <div class="row">${field('Expires', input('ex', x.expires_on, 'date'), 'leave empty if it does not expire')}${field('Issued', input('is', x.issued_on, 'date'), 'optional; fills in the expiry if the card does not show one')}</div>
       ${field(isNew ? 'Copy of the card' : 'Replace the copy', '<input id="fi" type="file" accept="image/*,application/pdf" capture="environment"><div class="small muted" id="fnote"></div>', 'photo or PDF')}`,
@@ -354,7 +357,7 @@
       if (t && t.validity_months && val('#is') && !val('#ex')) $d('#ex').value = addMonths(val('#is'), t.validity_months);
     };
     $d('#is').onchange = fillExpiry;
-    if (isNew) $d('#ty').onchange = fillExpiry;
+    if (isNew) $d('#ty').onchange = () => { const nt = $d('#newtype'); if (nt) nt.classList.toggle('hidden', val('#ty') !== '__new'); fillExpiry(); };
     let scanned = null;
     if ($d('#sc')) $d('#sc').onchange = async () => {
       const file = $d('#sc').files[0]; if (!file) return;
@@ -379,8 +382,14 @@
       box.classList.remove('busy');
     };
     $d('#save').onclick = async () => {
+      let typeId = isNew ? val('#ty') : null;
+      if (isNew && typeId === '__new') {
+        if (!val('#ntn')) return dlgErr('Give the new type of training a name.');
+        try { const r = await api('/qual-types', { body: { name: val('#ntn'), validity_months: val('#ntm'), required: $d('#ntr').checked } }); typeId = String(r.id || (r.row && r.row.id)); bust(); }
+        catch (e) { return dlgErr(e.message); }
+      }
       const f = new FormData();
-      f.append('operative_id', x.operative_id); if (isNew) f.append('qual_type_id', val('#ty'));
+      f.append('operative_id', x.operative_id); if (isNew) f.append('qual_type_id', typeId);
       f.append('number', val('#nu')); f.append('issued_on', val('#is')); f.append('expires_on', val('#ex'));
       if ($d('#fi').files[0]) f.append('file', $d('#fi').files[0]); else if (scanned) f.append('file', scanned);
       try { await api(isNew ? '/quals' : '/quals/' + x.id, { form: f, method: isNew ? 'POST' : 'PUT' }); dlg.close(); bust(); route(); }
