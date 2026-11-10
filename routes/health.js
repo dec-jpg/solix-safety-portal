@@ -19,11 +19,11 @@ const LIST = `SELECT h.id, h.operative_id, h.name_given, h.phone_given, h.kind, 
 // The register: every submission, newest first, plus who on the register has never completed one.
 r.get('/', admin, async (req, res) => {
   const rows = (await q(`${LIST} ORDER BY h.submitted_at DESC`)).rows;
-  const never = (await q(`SELECT o.id, o.full_name, o.role FROM operatives o WHERE o.active
+  const never = (await q(`SELECT o.id, o.full_name, o.role FROM operatives o WHERE o.active AND NOT o.office
       AND NOT EXISTS (SELECT 1 FROM health_checks h WHERE h.operative_id = o.id) ORDER BY o.full_name`)).rows;
   // Due: last one over 11 months ago (annual review), so the office can chase before the year is up.
   const due = (await q(`SELECT o.id, o.full_name, MAX(h.submitted_at) AS last FROM operatives o JOIN health_checks h ON h.operative_id = o.id
-      WHERE o.active GROUP BY o.id, o.full_name HAVING MAX(h.submitted_at) < NOW() - INTERVAL '11 months' ORDER BY last`)).rows;
+      WHERE o.active AND NOT o.office GROUP BY o.id, o.full_name HAVING MAX(h.submitted_at) < NOW() - INTERVAL '11 months' ORDER BY last`)).rows;
   const tok = await getSetting('health_token');
   res.json({ rows, never, due, link: `${baseUrl(req)}/h/${tok}`, kinds: health.KINDS, flag_labels: Object.fromEntries(health.SECTIONS.map(s => [s.flag, s.flag_label])) });
 });

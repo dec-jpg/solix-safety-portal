@@ -240,20 +240,24 @@
     if (id) return operativeDetail(id);
     const rows = await ops(true);
     const show = params.get('show') || 'active';
-    const list = rows.filter(o => (show === 'all' ? true : o.active));
-    setMain(`<div class="ad-head"><div><p class="muted">Everyone who works for you on site, employed or subcontract.</p></div>
+    const tab = params.get('tab') || 'site';
+    const office = rows.filter(o => o.office), site = rows.filter(o => !o.office);
+    const list = (tab === 'office' ? office : site).filter(o => (show === 'all' ? true : o.active));
+    setMain(`<div class="ad-head"><div><p class="muted">${tab === 'office' ? 'Office and management staff: on the register for policies and records, but not counted on the training matrix, toolbox talks or reminders.' : 'Everyone who works for you on site, employed or subcontract.'}</p></div>
         ${canEdit() ? '<div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn ghost" id="imp">Add a list</button><button class="btn" id="add">Add {op}</button></div>' : ''}</div>
+      ${office.length || tab === 'office' ? `<div class="tabs"><button data-tab="site" class="${tab === 'site' ? 'on' : ''}">On site (${site.filter(o => o.active).length})</button><button data-tab="office" class="${tab === 'office' ? 'on' : ''}">Office (${office.filter(o => o.active).length})</button></div>` : ''}
       <div class="toolbar"><div class="field"><label>Search</label><input id="s" type="search" placeholder="Name, phone or role"></div>
         <div class="field"><label>Show</label><select id="sh"><option value="active">Current</option><option value="all" ${show === 'all' ? 'selected' : ''}>Including left</option></select></div></div>
       <div class="tablewrap">${list.length ? `<table><thead><tr><th>Name</th><th>Role</th><th>Mobile</th><th>Training</th><th>Live jobs</th></tr></thead><tbody>
         ${list.map(o => `<tr class="click" data-id="${o.id}" data-q="${esc((o.full_name + ' ' + (o.phone || '') + ' ' + (o.role || '')).toLowerCase())}">
           <td><b>${esc(o.full_name)}</b>${o.active ? '' : ' <span class="pill grey">left</span>'}</td><td>${esc(o.role || '')}${o.employment ? ` <span class="small muted">${esc(o.employment)}</span>` : ''}</td>
           <td>${esc(o.phone || '')}</td>
-          <td>${o.expired || o.missing ? `<span class="pill no">${[o.expired && `${o.expired} expired`, o.missing && `${o.missing} missing`].filter(Boolean).join(', ')}</span>` : ''}
-            ${o.expiring ? `<span class="pill under_review">${o.expiring} expiring</span>` : ''}${!o.expired && !o.missing && !o.expiring ? '<span class="pill yes">In date</span>' : ''}</td>
+          <td>${o.office ? (o.expired ? `<span class="pill no">${o.expired} expired</span>` : '<span class="small muted">Office</span>') : `${o.expired || o.missing ? `<span class="pill no">${[o.expired && `${o.expired} expired`, o.missing && `${o.missing} missing`].filter(Boolean).join(', ')}</span>` : ''}
+            ${o.expiring ? `<span class="pill under_review">${o.expiring} expiring</span>` : ''}${!o.expired && !o.missing && !o.expiring ? '<span class="pill yes">In date</span>' : ''}`}</td>
           <td class="small">${esc(o.jobs || '')}</td></tr>`).join('')}</tbody></table>`
-        : '<div class="empty"><b>No {ops} yet.</b>Add them one at a time, or paste a list from a spreadsheet.</div>'}</div>`);
-    document.getElementById('sh').onchange = e => (location.hash = `#/operatives?show=${e.target.value}`);
+        : tab === 'office' ? '<div class="empty"><b>Nobody marked as office yet.</b>Open someone, Edit details, and tick "Office based".</div>' : '<div class="empty"><b>No {ops} yet.</b>Add them one at a time, or paste a list from a spreadsheet.</div>'}</div>`);
+    document.getElementById('sh').onchange = e => (location.hash = `#/operatives?show=${e.target.value}${tab === 'office' ? '&tab=office' : ''}`);
+    main().querySelectorAll('[data-tab]').forEach(b => (b.onclick = () => (location.hash = `#/operatives?tab=${b.dataset.tab}${show === 'all' ? '&show=all' : ''}`)));
     document.getElementById('s').oninput = e => { const t = e.target.value.toLowerCase(); main().querySelectorAll('tr[data-q]').forEach(tr => tr.classList.toggle('hidden', !tr.dataset.q.includes(t))); };
     main().querySelectorAll('tr[data-id]').forEach(tr => (tr.onclick = () => (location.hash = '#/operatives/' + tr.dataset.id)));
     if (canEdit()) {
@@ -276,15 +280,16 @@
     openDlg(isNew ? 'Add {op}' : `Edit ${o.full_name}`, `
       <div class="row">${field('Full name', input('fn', o.full_name))}${field('Mobile', input('ph', o.phone, 'tel'), 'used to match their signatures')}</div>
       <div class="row">${field('Role or trade', input('ro', o.role, 'text', 'list="roles"'))}${field('Employment', `<select id="em"><option value="">Not set</option>${['Employed', 'Subcontract', 'Agency'].map(x => `<option ${o.employment === x ? 'selected' : ''}>${x}</option>`).join('')}</select>`)}</div>
-      <datalist id="roles">${['Installer', 'Fitter', 'Supervisor', 'Labourer', 'Apprentice', 'Plumber', 'Heating engineer', 'Gas engineer', 'Driver'].map(x => `<option>${x}</option>`).join('')}</datalist>
+      <datalist id="roles">${['Installer', 'Fitter', 'Supervisor', 'Labourer', 'Apprentice', 'Director', 'Office Manager', 'Customer Care', 'Surveyor', 'Driver'].map(x => `<option>${x}</option>`).join('')}</datalist>
       <div class="row">${field('Email', input('ea', o.email, 'email'))}${field('Start date', input('sd', o.start_date, 'date'))}</div>
       <div class="row">${field('Emergency contact', input('en', o.emergency_name))}${field('Emergency number', input('ep', o.emergency_phone, 'tel'))}</div>
       ${field('Notes', `<textarea id="no">${esc(o.notes || '')}</textarea>`)}
+      <label class="check" style="margin-bottom:.6rem"><input type="checkbox" id="of" ${o.office ? 'checked' : ''}> Office based <span class="hint">on the register for policies and records, but not on the training matrix, toolbox talks or reminders</span></label>
       ${isNew ? '' : `<label class="check"><input type="checkbox" id="ac" ${o.active ? 'checked' : ''}> Currently working for us <span class="hint">untick when they leave; their records are kept</span></label>`}`,
     `<button class="btn" id="save">${isNew ? 'Add {op}' : 'Save'}</button>`);
     $d('#save').onclick = async () => {
       const body = { full_name: val('#fn'), phone: val('#ph'), role: val('#ro'), employment: val('#em'), email: val('#ea'), start_date: val('#sd'),
-        emergency_name: val('#en'), emergency_phone: val('#ep'), notes: val('#no'), active: isNew ? true : $d('#ac').checked };
+        emergency_name: val('#en'), emergency_phone: val('#ep'), notes: val('#no'), active: isNew ? true : $d('#ac').checked, office: $d('#of').checked };
       try {
         if (isNew) { const r = await api('/operatives', { body }); dlg.close(); bust(); location.hash = '#/operatives/' + r.row.id; }
         else { await api('/operatives/' + o.id, { method: 'PUT', body }); dlg.close(); bust(); route(); }
@@ -301,7 +306,7 @@
     const st = x => (!x ? null : !x.expires_on ? 'valid' : x.expires_on < today ? 'expired' : x.expires_on <= soon ? 'expiring' : 'valid');
     const activeTypes = ts.filter(t => t.active);
     setMain(`<p class="no-print"><a href="#/operatives">Back to {ops}</a></p>
-      <div class="ad-head"><div><h1>${esc(o.full_name)}</h1><p class="muted">${[o.role, o.employment, o.phone].filter(Boolean).map(esc).join(' · ')}${o.active ? '' : ' · <span class="pill grey">left</span>'}</p></div>
+      <div class="ad-head"><div><h1>${esc(o.full_name)}</h1><p class="muted">${[o.role, o.employment, o.phone].filter(Boolean).map(esc).join(' · ')}${o.office ? ' · <span class="pill grey">office</span>' : ''}${o.active ? '' : ' · <span class="pill grey">left</span>'}</p></div>
         ${canEdit() ? '<div style="display:flex;gap:.5rem"><button class="btn ghost" id="ed">Edit details</button><button class="btn" id="aq">Add training</button></div>' : ''}</div>
       <div class="tabs"><button data-t="tr" class="on">Training (${d.quals.length})</button><button data-t="sg">Signed (${d.signoffs.length})</button><button data-t="dt">Details</button></div>
       <div data-p="tr"><div class="tablewrap"><table><thead><tr><th>Training</th><th>Number</th><th>Issued</th><th>Expires</th><th>Card</th><th></th></tr></thead><tbody>

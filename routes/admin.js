@@ -46,16 +46,16 @@ r.get('/me', view, (req, res) => res.json({ user: req.user }));
 // ---------- dashboard ----------
 r.get('/dashboard', view, async (req, res) => {
   const counts = (await q(`SELECT
-      (SELECT COUNT(*)::int FROM operatives WHERE active) AS operatives,
+      (SELECT COUNT(*)::int FROM operatives WHERE active AND NOT office) AS operatives,
       (SELECT COUNT(*)::int FROM jobs WHERE status = 'live') AS live_jobs,
       (SELECT COUNT(*)::int FROM talks WHERE status = 'issued') AS open_talks,
       (SELECT COUNT(*)::int FROM signoffs WHERE operative_id IS NULL) AS unmatched`)).rows[0];
   const tickets = (await q(`SELECT l.*, o.full_name, t.name AS type_name FROM (${LATEST_QUALS}) l
-      JOIN operatives o ON o.id = l.operative_id AND o.active JOIN qual_types t ON t.id = l.qual_type_id AND t.active
+      JOIN operatives o ON o.id = l.operative_id AND o.active AND NOT o.office JOIN qual_types t ON t.id = l.qual_type_id AND t.active
       WHERE l.status IN ('expired','expiring') ORDER BY l.expires_on`)).rows;
   const missing = (await q(`SELECT o.id AS operative_id, o.full_name, t.id AS qual_type_id, t.name AS type_name
       FROM operatives o CROSS JOIN qual_types t
-      WHERE o.active AND t.active AND t.required AND NOT EXISTS (SELECT 1 FROM quals ql WHERE ql.operative_id = o.id AND ql.qual_type_id = t.id)
+      WHERE o.active AND NOT o.office AND t.active AND t.required AND NOT EXISTS (SELECT 1 FROM quals ql WHERE ql.operative_id = o.id AND ql.qual_type_id = t.id)
       ORDER BY o.full_name, t.sort`)).rows;
   const jobs = (await q(`SELECT j.id, j.ref, j.name,
       (SELECT COUNT(*)::int FROM job_operatives jo JOIN operatives o ON o.id = jo.operative_id AND o.active WHERE jo.job_id = j.id) AS team,
@@ -66,7 +66,7 @@ r.get('/dashboard', view, async (req, res) => {
       FROM jobs j WHERE j.status = 'live' ORDER BY j.name`)).rows;
   const talks = (await q(`SELECT t.id, t.ref, t.title, t.issued_at, t.job_id,
       (SELECT COUNT(DISTINCT s.operative_id)::int FROM signoffs s WHERE s.talk_id = t.id AND s.operative_id IS NOT NULL) AS signed,
-      CASE WHEN t.job_id IS NULL THEN (SELECT COUNT(*)::int FROM operatives WHERE active)
+      CASE WHEN t.job_id IS NULL THEN (SELECT COUNT(*)::int FROM operatives WHERE active AND NOT office)
            ELSE (SELECT COUNT(*)::int FROM job_operatives jo JOIN operatives o ON o.id = jo.operative_id AND o.active WHERE jo.job_id = t.job_id) END AS expected
       FROM talks t WHERE t.status = 'issued' ORDER BY t.issued_at DESC`)).rows;
   const recent = (await q(`SELECT s.id, s.signed_at, s.name_given, s.operative_id, o.full_name, t.title AS talk, d.title AS doc, j.name AS job
@@ -77,14 +77,14 @@ r.get('/dashboard', view, async (req, res) => {
 });
 
 // ---------- operatives ----------
-const OP_FIELDS = ['full_name', 'phone', 'email', 'role', 'employment', 'start_date', 'emergency_name', 'emergency_phone', 'notes', 'active'];
+const OP_FIELDS = ['full_name', 'phone', 'email', 'role', 'employment', 'start_date', 'emergency_name', 'emergency_phone', 'notes', 'active', 'office'];
 function opValues(b) {
   return [clean(b.full_name, 120), normPhone(b.phone) || null, clean(b.email, 160), clean(b.role, 80), clean(b.employment, 40), date(b.start_date),
-    clean(b.emergency_name, 120), normPhone(b.emergency_phone) || null, clean(b.notes, 2000), b.active === undefined ? true : bool(b.active)];
+    clean(b.emergency_name, 120), normPhone(b.emergency_phone) || null, clean(b.notes, 2000), b.active === undefined ? true : bool(b.active), bool(b.office)];
 }
 
 r.get('/operatives', view, async (req, res) => {
-  const rows = (await q(`SELECT o.id, o.full_name, o.phone, o.role, o.employment, o.active,
+  const rows = (await q(`SELECT o.id, o.full_name, o.phone, o.role, o.employment, o.active, o.office,
       (SELECT COUNT(*)::int FROM (${LATEST_QUALS}) l WHERE l.operative_id = o.id AND l.status = 'expired') AS expired,
       (SELECT COUNT(*)::int FROM (${LATEST_QUALS}) l WHERE l.operative_id = o.id AND l.status = 'expiring') AS expiring,
       (SELECT COUNT(*)::int FROM qual_types t WHERE t.active AND t.required AND NOT EXISTS (SELECT 1 FROM quals ql WHERE ql.operative_id = o.id AND ql.qual_type_id = t.id)) AS missing,
@@ -162,7 +162,7 @@ r.get('/quals/:id/file', view, async (req, res) => sendFile(res, (await q('SELEC
 async function matrix(req) {
   const job = int(req.query.job);
   const types = (await q('SELECT id, name, required, validity_months FROM qual_types WHERE active ORDER BY sort, name')).rows;
-  const ops = (await q(`SELECT o.id, o.full_name, o.role FROM operatives o WHERE o.active
+  const ops = (await q(`SELECT o.id, o.full_name, o.role FROM operatives o WHERE o.active AND NOT o.office
       AND ($1::int IS NULL OR EXISTS (SELECT 1 FROM job_operatives jo WHERE jo.job_id = $1 AND jo.operative_id = o.id)) ORDER BY o.full_name`, [job])).rows;
   const cells = {};
   (await q(LATEST_QUALS)).rows.forEach(c => { (cells[c.operative_id] = cells[c.operative_id] || {})[c.qual_type_id] = c; });
@@ -301,7 +301,7 @@ function talkPayload(b) {
   return { ref: clean(b.ref, 40), title: clean(b.title, 200), intro: clean(b.intro, 4000), job_id: int(b.job_id), sections, questions };
 }
 
-const EXPECTED_SQL = `CASE WHEN t.job_id IS NULL THEN (SELECT COUNT(*)::int FROM operatives WHERE active)
+const EXPECTED_SQL = `CASE WHEN t.job_id IS NULL THEN (SELECT COUNT(*)::int FROM operatives WHERE active AND NOT office)
   ELSE (SELECT COUNT(*)::int FROM job_operatives jo JOIN operatives o ON o.id = jo.operative_id AND o.active WHERE jo.job_id = t.job_id) END`;
 
 r.get('/talks', view, async (req, res) => {
@@ -352,7 +352,7 @@ r.get('/talks/:id', view, async (req, res) => {
   talk.url = `${baseUrl(req)}/t/${talk.token}`;
   const signoffs = (await q(`SELECT s.id, s.operative_id, s.name_given, s.phone_given, s.signed_at, s.attempts, o.full_name
       FROM signoffs s LEFT JOIN operatives o ON o.id = s.operative_id WHERE s.talk_id = $1 ORDER BY s.signed_at`, [talk.id])).rows;
-  const outstanding = (await q(`SELECT o.id, o.full_name, o.role, o.phone FROM operatives o WHERE o.active
+  const outstanding = (await q(`SELECT o.id, o.full_name, o.role, o.phone FROM operatives o WHERE o.active AND NOT o.office
       AND ($1::int IS NULL OR EXISTS (SELECT 1 FROM job_operatives jo WHERE jo.job_id = $1 AND jo.operative_id = o.id))
       AND NOT EXISTS (SELECT 1 FROM signoffs s WHERE s.talk_id = $2 AND s.operative_id = o.id) ORDER BY o.full_name`, [talk.job_id, talk.id])).rows;
   res.json({ talk, signoffs, outstanding });
