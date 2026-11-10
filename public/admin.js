@@ -596,7 +596,7 @@
     setMain(`<p class="no-print"><a href="#/talks">Back to toolbox talks</a></p>
       <div class="ad-head"><div><h1>${esc(t.title)}</h1><p class="muted">${t.ref ? `${esc(t.ref)} · ` : ''}${t.job ? `For ${esc(t.job)}` : 'For everyone'} · Issued ${fDate(t.issued_at)}${t.status === 'closed' ? ' · <span class="pill grey">closed</span>' : ''}</p></div>
         <div class="no-print" style="display:flex;gap:.5rem;flex-wrap:wrap">${canEdit() ? `<button class="btn ghost" id="cp">Copy as new talk</button><button class="btn ghost" id="cl">${t.status === 'closed' ? 'Reopen' : 'Close signing'}</button>` : ''}
-          <button class="btn ghost" id="pv">View content</button><button class="btn ghost" onclick="print()">Print register</button></div></div>
+          <button class="btn ghost" id="pv">View content</button><button class="btn ghost" onclick="print()">Print register</button>${isOwner() ? '<button class="btn quiet" id="deltalk">Delete</button>' : ''}</div></div>
       ${t.status === 'issued' ? `<div class="panel no-print"><h2>Link to send</h2>${shareBox(t.url, `/api/admin/talks/${t.id}/qr.svg`, `Toolbox talk: ${t.title}. Please read${t.questions.length ? ', answer the questions' : ''} and sign.`)}</div>` : ''}
       <div class="print-only"><p><b>Toolbox talk register.</b> ${esc(brand.name)}. Printed ${fDT(new Date().toISOString())}.</p></div>
       <h2>Signed (${matched.length})</h2>
@@ -609,6 +609,10 @@
         : '<div class="empty">Everyone has signed.</div>'}</div>`);
     document.getElementById('pv').onclick = () => openDlg(t.title, `${t.intro ? `<p>${esc(t.intro)}</p>` : ''}${t.sections.map(s => `<h3>${esc(s.heading)}</h3><p style="white-space:pre-wrap">${esc(s.body)}</p>`).join('')}
       ${t.questions.length ? `<h3>Questions</h3>${t.questions.map((x, i) => `<p><b>${i + 1}. ${esc(x.question)}</b><br>${x.options.map((o, j) => (j === x.answer ? `<b>${esc(o)} (correct)</b>` : esc(o))).join('<br>')}</p>`).join('')}` : ''}`);
+    if (isOwner()) document.getElementById('deltalk').onclick = async () => {
+      if (!confirm(`Delete this issued talk and its ${d.signoffs.length} signature${d.signoffs.length === 1 ? '' : 's'}? For test issues only. It cannot be undone.`)) return;
+      try { await api('/talks/' + t.id, { method: 'DELETE' }); flash('Talk deleted.'); location.hash = '#/talks'; } catch (e) { flash(e.message, 'err'); }
+    };
     if (!canEdit()) return;
     document.getElementById('cp').onclick = async () => { const r = await api('/talks', { body: { copy_from: t.id } }); location.hash = '#/talks/' + r.row.id; };
     document.getElementById('cl').onclick = async () => { await api(`/talks/${t.id}/close`, { body: {} }); route(); };
