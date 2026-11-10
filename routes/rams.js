@@ -107,4 +107,20 @@ r.post('/jobs/:id', edit, async (req, res) => {
   res.json({ id: row.id, document_id: doc.id, briefing_id: brief.id, issue_no });
 });
 
+// The RAMS with the installers' electronic sign-offs on its signature page, rendered fresh each time it is opened,
+// so the document carries every confirmation made so far.
+r.get('/:id/signed.pdf', view, async (req, res) => {
+  const rs = (await q('SELECT rs.*, m.body AS master, j.name AS job_name FROM rams rs JOIN rams_masters m ON m.id = rs.master_id JOIN jobs j ON j.id = rs.job_id WHERE rs.id = $1', [req.params.id])).rows[0];
+  if (!rs) return res.status(404).end();
+  const sigs = rs.briefing_id ? (await q(`SELECT COALESCE(o.full_name, s.name_given) AS name, s.signed_at, s.signature FROM signoffs s LEFT JOIN operatives o ON o.id = s.operative_id
+      WHERE s.document_id = $1 ORDER BY s.signed_at`, [rs.briefing_id])).rows : [];
+  const f = rs.fields || {};
+  const site = { ...f, ref: rs.ref, issue_no: rs.issue_no, issue_date_text: ddmmyy(String(rs.issue_date)), review_text: `${(rs.master.defaults || {}).review_months || 12} months` };
+  const pdf = await pdfBuffer(render(rs.master, site, { signatures: sigs }));
+  const name = `${client.company} - RAMS - ${f.project || rs.job_name} - Issue ${rs.issue_no}${sigs.length ? ' - signed' : ''}.pdf`.replace(/[\\/:*?"<>|]+/g, '');
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `${req.query.download ? 'attachment' : 'inline'}; filename="${name}"`);
+  res.send(pdf);
+});
+
 module.exports = r;
