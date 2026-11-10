@@ -22,23 +22,7 @@
       "months": 36
     },
     {
-      "name": "IPAF 3a / 3b",
-      "months": 60
-    },
-    {
-      "name": "PASMA",
-      "months": 60
-    },
-    {
-      "name": "Vacuum Lifter / Glass Handling",
-      "months": 36
-    },
-    {
       "name": "Silica Dust Awareness",
-      "months": 36
-    },
-    {
-      "name": "Abrasive Wheels",
       "months": 36
     },
     {
@@ -929,7 +913,11 @@
     }
   ],
   "retired_training": [
-    "Asbestos Awareness"
+    "Abrasive Wheels",
+    "Asbestos Awareness",
+    "IPAF 3a / 3b",
+    "PASMA",
+    "Vacuum Lifter / Glass Handling"
   ],
   "about": "a window and door installation contractor working on new build housing developments for housebuilders and principal contractors across the North West of England"
 }
