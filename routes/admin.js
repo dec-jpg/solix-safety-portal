@@ -427,8 +427,8 @@ r.post('/signoffs/:id/link', edit, async (req, res) => {
       AND LOWER(name_given) = LOWER($2) AND COALESCE(phone_given, '') = COALESCE($3, '')`, [opId, s.name_given, s.phone_given]);
   if (s.phone_given) await q('UPDATE operatives SET phone = COALESCE(phone, $1) WHERE id = $2', [s.phone_given, opId]);
   // Linked job-pack signatures put the person on those jobs' teams, as signing directly would have.
-  await q(`INSERT INTO job_operatives (job_id, operative_id) SELECT DISTINCT d.job_id, $1 FROM signoffs s JOIN documents d ON d.id = s.document_id
-      WHERE s.operative_id = $1 ON CONFLICT DO NOTHING`, [opId]);
+  await q(`INSERT INTO job_operatives (job_id, operative_id) SELECT DISTINCT d.job_id, $1::int FROM signoffs s JOIN documents d ON d.id = s.document_id
+      WHERE s.operative_id = $1::int ON CONFLICT DO NOTHING`, [opId]);
   res.json({ ok: true, linked: n.rowCount, operative_id: opId });
 });
 
