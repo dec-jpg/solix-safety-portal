@@ -293,3 +293,8 @@ body.signin { background: var(--paper); min-height: 100vh; }
 .hq .hidden { display: none; }
 .hq-detail input { width: 100%; }
 .si-body textarea, .si-body select { width: 100%; }
+
+/* card scanner */
+.scanbox { display: flex; justify-content: space-between; align-items: center; gap: 1rem; background: var(--tint); border: 1px dashed var(--oak); border-radius: 10px; padding: .8rem 1rem; margin-bottom: 1rem; }
+.scanbox.busy label { opacity: .5; pointer-events: none; }
+.scanbox label.btn { margin: 0; white-space: nowrap; cursor: pointer; }

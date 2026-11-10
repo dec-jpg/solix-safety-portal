@@ -337,6 +337,8 @@
   function qualDialog(x, ts) {
     const isNew = !x.id;
     openDlg(isNew ? 'Add training' : `Edit ${x.type_name}`, `
+      ${window.CardScan && window.Tesseract ? `<div class="scanbox" id="scanbox"><div><b>Scan the card</b><div class="small muted">Take a photo of the card and the number, dates and type are filled in for you to check. The photo is kept as the copy.</div></div>
+        <label class="btn ghost small" for="sc">Scan card</label><input id="sc" type="file" accept="image/*" capture="environment" class="hidden"></div><div id="scanout"></div>` : ''}
       ${isNew ? field('Training', `<select id="ty"><option value="">Choose</option>${opt(ts, x.qual_type_id)}</select>`) : ''}
       ${field('Card or certificate number', input('nu', x.number))}
       <div class="row">${field('Issued', input('is', x.issued_on, 'date'))}${field('Expires', input('ex', x.expires_on, 'date'), 'leave empty if it does not expire')}</div>
@@ -348,6 +350,26 @@
     };
     $d('#is').onchange = fillExpiry;
     if (isNew) $d('#ty').onchange = fillExpiry;
+    if ($d('#sc')) $d('#sc').onchange = async () => {
+      const file = $d('#sc').files[0]; if (!file) return;
+      const out = $d('#scanout'); const box = $d('#scanbox'); box.classList.add('busy');
+      out.innerHTML = '<div class="note info" id="scanmsg">Reading the card<span id="scanpct"></span></div>';
+      try {
+        const opName = (cache.ops || []).find(o => o.id === Number(x.operative_id)); 
+        const r = await CardScan.scan(file, { types: ts, operativeName: opName ? opName.full_name : '', onProgress: p => { const el = $d('#scanpct'); if (el) el.textContent = `: ${Math.round(p * 100)}%`; } });
+        const found = [];
+        if (isNew && r.type) { $d('#ty').value = String(r.type.id); found.push(r.type.name); }
+        if (r.number) { $d('#nu').value = r.number; found.push(`number ${r.number}`); }
+        if (r.issued) { $d('#is').value = r.issued; found.push(`issued ${fDate(r.issued)}`); }
+        if (r.expires) { $d('#ex').value = r.expires; found.push(`expires ${fDate(r.expires)}`); }
+        if (!r.expires) fillExpiry();
+        const dt = new DataTransfer(); dt.items.add(r.photo); $d('#fi').files = dt.files;
+        const warn = r.nameMatch === false ? ' <b>The name on the card does not look like this person\'s: check it is the right card.</b>' : '';
+        out.innerHTML = `<div class="note ${found.length ? 'ok' : 'warn'}">${found.length ? `Read from the card: ${esc(found.join(', '))}. Check them against the card before saving.` : 'Could not make out the details. Try again closer, flat and in good light, or type them in.'}${warn}</div>
+          <details class="small muted" style="margin:-.4rem 0 1rem"><summary>What the scanner read</summary><pre style="white-space:pre-wrap;font-size:.75rem">${esc(r.text.trim())}</pre></details>`;
+      } catch (e) { out.innerHTML = `<div class="note err">Could not read the card (${esc(e.message)}). Type the details in and attach the photo instead.</div>`; }
+      box.classList.remove('busy');
+    };
     $d('#save').onclick = async () => {
       const f = new FormData();
       f.append('operative_id', x.operative_id); if (isNew) f.append('qual_type_id', val('#ty'));
