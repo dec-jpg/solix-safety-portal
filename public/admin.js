@@ -893,13 +893,26 @@
     const d = await api('/users');
     const roleName = { owner: 'Safety Simplified', admin: 'Admin', manager: 'Manager', viewer: 'View only' };
     if (!isOwner()) delete roleName.owner;
-    const acc = await api('/account');
-    setMain(`${acc.dd_link ? `<div class="panel"><div class="ad-head" style="margin:0;align-items:center"><div><h2 style="margin:0">Your account</h2><p class="small muted" style="margin:0">Your subscription with Safety Simplified is paid by Direct Debit, handled securely by GoCardless.</p></div>
+    const [acc, rem] = await Promise.all([api('/account'), api('/reminders')]);
+    setMain(`<div class="panel"><div class="ad-head" style="margin:0 0 .5rem"><div><h2 style="margin:0">Training expiry reminders</h2>
+          <p class="small muted" style="margin:0">Every Monday morning the portal emails a list of cards that have expired, cards expiring in the next ${rem.expiring_days} days, and anyone missing a required card. Right now: ${rem.counts.expired} expired, ${rem.counts.expiring} expiring, ${rem.counts.missing} missing.${rem.last ? ` Last sent ${fDate(rem.last)}.` : ''}</p></div>
+          <div style="display:flex;gap:.5rem"><a class="btn small ghost" href="/api/admin/reminders/preview" target="_blank" rel="noopener">Preview</a><button class="btn small ghost" id="remsend">Send now</button></div></div>
+        ${rem.configured ? '' : '<div class="note warn">Email sending is not switched on for this portal yet. Safety Simplified will turn it on; the list below is saved in the meantime.</div>'}
+        ${field('Send to', `<input id="remto" value="${esc(rem.emails)}" placeholder="${esc(rem.recipients.join(', '))}">`, 'email addresses separated by commas; leave empty to send to every admin login')}
+        <button class="btn small" id="remsave">Save recipients</button></div>
+      ${acc.dd_link ? `<div class="panel"><div class="ad-head" style="margin:0;align-items:center"><div><h2 style="margin:0">Your account</h2><p class="small muted" style="margin:0">Your subscription with Safety Simplified is paid by Direct Debit, handled securely by GoCardless.</p></div>
         <a class="btn" href="${esc(acc.dd_link)}" target="_blank" rel="noopener">Set up Direct Debit</a></div></div>` : ''}
       <div class="ad-head"><div><p class="muted">Office staff who log in here. {Ops} don't need accounts; they use the links you send.</p></div><button class="btn" id="add">Add user</button></div>
       <div class="tablewrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody>
         ${d.rows.map(u => `<tr><td><b>${esc(u.name)}</b>${u.active ? '' : ' <span class="pill grey">disabled</span>'}</td><td>${esc(u.email)}</td><td>${roleName[u.role]}</td>
           <td><button class="btn small quiet" data-u="${u.id}">Edit</button></td></tr>`).join('')}</tbody></table></div>`);
+    document.getElementById('remsave').onclick = async () => {
+      try { const r = await api('/reminders', { method: 'PUT', body: { emails: v('remto') } }); flash(`Saved. Reminders go to ${r.recipients.join(', ')}.`); } catch (e) { flash(e.message, 'err'); }
+    };
+    document.getElementById('remsend').onclick = async () => {
+      if (!confirm('Send the reminder email now to ' + (v('remto') || rem.recipients.join(', ')) + '?')) return;
+      try { const r = await api('/reminders/send', { body: {} }); flash(r.sent ? `Sent to ${r.to.join(', ')}.` : r.reason, r.sent ? 'ok' : 'err'); } catch (e) { flash(e.message, 'err'); }
+    };
     document.getElementById('add').onclick = () => {
       openDlg('Add user', `${field('Name', input('n', ''))}${field('Email', input('e', '', 'email'))}
         ${field('Role', `<select id="r">${['manager', 'viewer', 'admin', 'owner'].filter(k => roleName[k]).map(k => `<option value="${k}">${roleName[k]}</option>`).join('')}</select>`)}

@@ -7,6 +7,7 @@ const client = require('../lib/client');
 const { requireUser, hash } = require('../lib/auth');
 const { token, clean, normPhone, csv } = require('../lib/util');
 const { getSetting, setSetting } = require('../lib/brand');
+const reminders = require('../lib/reminders');
 
 const r = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
@@ -448,6 +449,27 @@ r.put('/settings', owner, async (req, res) => {
 });
 
 // ---------- users ----------
+// ---------- training expiry reminders ----------
+r.get('/reminders', admin, async (req, res) => {
+  const d = await reminders.gather();
+  res.json({ emails: await getSetting('reminder_emails'), recipients: await reminders.recipients(), configured: reminders.configured(), last: await getSetting('reminder_last'),
+    counts: { expired: d.expired.length, expiring: d.expiring.length, missing: d.missing.length }, expiring_days: reminders.EXPIRING_DAYS });
+});
+r.put('/reminders', admin, async (req, res) => {
+  const list = String((req.body || {}).emails || '').split(/[,\s;]+/).map(x => x.trim().toLowerCase()).filter(Boolean);
+  const bad = list.filter(x => !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x));
+  if (bad.length) return res.status(400).json({ error: `Not an email address: ${bad.join(', ')}` });
+  await setSetting('reminder_emails', list.join(', '));
+  res.json({ ok: true, recipients: await reminders.recipients() });
+});
+r.post('/reminders/send', admin, async (req, res) => {
+  try { res.json(await reminders.send({ portalUrl: baseUrl(req) })); } catch (e) { res.status(400).json({ error: e.message }); }
+});
+r.get('/reminders/preview', admin, async (req, res) => {
+  const d = await reminders.gather();
+  res.type('html').send(reminders.render(d, baseUrl(req)).html);
+});
+
 r.get('/users', admin, async (req, res) => {
   res.json({ rows: (await q(`SELECT id, name, email, role, active, created_at FROM users WHERE $1 OR role <> 'owner' ORDER BY name`, [req.user.role === 'owner'])).rows });
 });

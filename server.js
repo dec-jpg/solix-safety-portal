@@ -48,4 +48,5 @@ app.use((err, req, res, next) => {
   const port = process.env.PORT || 3000;
   app.listen(port, () => console.log(`Portal listening on ${port}`));
   require('./lib/policies').schedule();
+  require('./lib/reminders').schedule();
 })().catch(e => { console.error('Startup failed:', e); process.exit(1); });
