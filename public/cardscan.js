@@ -87,8 +87,18 @@ window.CardScan = (() => {
       const raw = labelled[1].trim().replace(/(\d)\s*[A-Za-z]{2,}.*$/, '$1').trim(); const body = raw.replace(/^[A-Z]{1,3}[\s\-]?/i, '');
       if (mostlyDigits(body)) return (raw.slice(0, raw.length - body.length) + digitise(body)).replace(/\s+/g, '').replace(/-+/g, '-');
     }
+    // 1b. labels on one line, values on the next (CSCS lays out "REG NO:  EXPIRES END:" over "12345678  Sep 2031"):
+    //     take the first number-like token on the line after a REG NO / CARD NO label.
+    const lines = t.split(/\n/);
+    for (let i = 0; i < lines.length - 1; i++) {
+      if (!/REG(?:ISTRATION)?\.?\s*(?:NO|NUMBER)|CARD\s*(?:NO|NUMBER)|LICEN[CS]E\s*(?:NO|NUMBER)/i.test(lines[i])) continue;
+      for (const ln of [lines[i + 1], lines[i + 2] || '']) {
+        const tok = [...ln.matchAll(/\b[0-9A-Z][0-9A-Z]{4,13}\b/g)].map(m => m[0]).find(x => mostlyDigits(x) && !/^(19|20)\d{2}$/.test(x));
+        if (tok) return digitise(tok);
+      }
+    }
     // 2. the longest run of (mostly) digits that is not a date, allowing spaces and the odd misread letter
-    const runs = [...t.matchAll(/\b[0-9A-Z][0-9A-Z ]{5,14}[0-9A-Z]\b/g)].map(m => { m[0] = m[0].replace(/(\d)\s*[A-Za-z]{2,}.*$/, '$1'); return m; })
+    const runs = [...t.matchAll(/\b[0-9A-Z][0-9A-Z ]{4,14}[0-9A-Z]\b/g)].map(m => { m[0] = m[0].replace(/(\d)\s*[A-Za-z]{2,}.*$/, '$1'); return m; })
       .filter(m => !inDate(m.index) && mostlyDigits(m[0]) && !/^(19|20)\d{2}\b/.test(m[0]) && !/^0[1-9]|^[12]\d|^3[01]/.test(m[0].replace(/\s/g, '').slice(0, 2)) || (!inDate(m.index) && mostlyDigits(m[0]) && m[0].replace(/\s/g, '').length >= 7))
       .map(m => digitise(m[0]).replace(/\s+/g, ''))
       .filter(x => /^\d{6,14}$/.test(x));
