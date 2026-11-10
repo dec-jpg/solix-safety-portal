@@ -10,6 +10,7 @@ const health = require('../lib/health');
 
 const r = express.Router();
 const admin = requireUser('admin');
+const owner = requireUser('owner');
 const baseUrl = req => process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
 const STATUSES = ['new', 'reviewed', 'referred', 'closed'];
 
@@ -77,5 +78,8 @@ r.put('/:id', admin, async (req, res) => {
     [row.id, status, clean(b.review_note, 2000), opId, req.user.name]);
   res.json({ ok: true });
 });
+
+// Safety Simplified can delete a questionnaire (test entries); the client's own admins review and close instead.
+r.delete('/:id', owner, async (req, res) => { await q('DELETE FROM health_checks WHERE id = $1', [req.params.id]); res.json({ ok: true }); });
 
 module.exports = r;

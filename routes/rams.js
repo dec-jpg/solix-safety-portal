@@ -123,4 +123,19 @@ r.get('/:id/signed.pdf', view, async (req, res) => {
   res.send(pdf);
 });
 
+r.delete('/:id', owner, async (req, res) => {
+  const rs = (await q('SELECT * FROM rams WHERE id = $1', [req.params.id])).rows[0];
+  if (!rs) return res.status(404).json({ error: 'Not found.' });
+  await q('DELETE FROM documents WHERE id = ANY($1)', [[rs.document_id, rs.briefing_id].filter(Boolean)]);
+  await q('DELETE FROM rams WHERE id = $1', [rs.id]);
+  if (rs.status === 'issued') {
+    const prev = (await q('SELECT * FROM rams WHERE job_id = $1 ORDER BY issue_no DESC LIMIT 1', [rs.job_id])).rows[0];
+    if (prev) {
+      await q("UPDATE rams SET status = 'issued' WHERE id = $1", [prev.id]);
+      await q('UPDATE documents SET current = TRUE WHERE id = ANY($1)', [[prev.document_id, prev.briefing_id].filter(Boolean)]);
+    }
+  }
+  res.json({ ok: true });
+});
+
 module.exports = r;
