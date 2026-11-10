@@ -19,7 +19,7 @@ const baseUrl = req => process.env.PUBLIC_URL || `${req.protocol}://${req.get('h
 const int = v => (v === '' || v == null ? null : parseInt(v, 10));
 const date = v => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || '')) ? v : null);
 const bool = v => v === true || v === 'true' || v === '1' || v === 'on';
-const DOC_KINDS = ['rams', 'plan', 'permit', 'other'];
+const DOC_KINDS = ['rams', 'plan', 'permit', 'other', 'briefing'];
 const EXPIRING_DAYS = 30;
 
 function sendFile(res, row, download) {
@@ -58,7 +58,7 @@ r.get('/dashboard', view, async (req, res) => {
       ORDER BY o.full_name, t.sort`)).rows;
   const jobs = (await q(`SELECT j.id, j.ref, j.name,
       (SELECT COUNT(*)::int FROM job_operatives jo JOIN operatives o ON o.id = jo.operative_id AND o.active WHERE jo.job_id = j.id) AS team,
-      (SELECT COUNT(*)::int FROM documents d WHERE d.job_id = j.id AND d.current AND d.requires_signoff) AS docs,
+      (SELECT COUNT(*)::int FROM documents d WHERE d.job_id = j.id AND d.current AND d.kind = 'rams') AS docs,
       (SELECT COUNT(*)::int FROM job_operatives jo JOIN operatives o ON o.id = jo.operative_id AND o.active
          JOIN documents d ON d.job_id = jo.job_id AND d.current AND d.requires_signoff
          WHERE jo.job_id = j.id AND NOT EXISTS (SELECT 1 FROM signoffs s WHERE s.document_id = d.id AND s.operative_id = jo.operative_id)) AS outstanding
@@ -233,7 +233,7 @@ r.get('/jobs/:id', view, async (req, res) => {
   if (!job) return res.status(404).json({ error: 'Not found.' });
   job.url = `${baseUrl(req)}/j/${job.token}`;
   const team = (await q(`SELECT o.id, o.full_name, o.role, o.phone, o.active FROM job_operatives jo JOIN operatives o ON o.id = jo.operative_id WHERE jo.job_id = $1 ORDER BY o.full_name`, [job.id])).rows;
-  const documents = (await q(`SELECT d.id, d.kind, d.title, d.reference, d.revision, d.requires_signoff, d.current, d.file_name, d.uploaded_by, d.created_at,
+  const documents = (await q(`SELECT d.id, d.kind, d.title, d.reference, d.revision, d.requires_signoff, d.current, d.file_name, d.uploaded_by, d.created_at, (d.content IS NOT NULL) AS has_content, d.content,
       (SELECT COUNT(*)::int FROM signoffs s WHERE s.document_id = d.id) AS signed
       FROM documents d WHERE d.job_id = $1 ORDER BY d.current DESC, d.kind, d.title, d.created_at DESC`, [job.id])).rows;
   const signoffs = (await q(`SELECT s.id, s.document_id, s.operative_id, s.name_given, s.signed_at FROM signoffs s JOIN documents d ON d.id = s.document_id WHERE d.job_id = $1`, [job.id])).rows;
@@ -426,6 +426,9 @@ r.post('/signoffs/:id/link', edit, async (req, res) => {
   const n = await q(`UPDATE signoffs SET operative_id = $1 WHERE operative_id IS NULL
       AND LOWER(name_given) = LOWER($2) AND COALESCE(phone_given, '') = COALESCE($3, '')`, [opId, s.name_given, s.phone_given]);
   if (s.phone_given) await q('UPDATE operatives SET phone = COALESCE(phone, $1) WHERE id = $2', [s.phone_given, opId]);
+  // Linked job-pack signatures put the person on those jobs' teams, as signing directly would have.
+  await q(`INSERT INTO job_operatives (job_id, operative_id) SELECT DISTINCT d.job_id, $1 FROM signoffs s JOIN documents d ON d.id = s.document_id
+      WHERE s.operative_id = $1 ON CONFLICT DO NOTHING`, [opId]);
   res.json({ ok: true, linked: n.rowCount, operative_id: opId });
 });
 

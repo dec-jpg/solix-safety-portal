@@ -1,0 +1,1200 @@
+{
+ "title": "Method Statement & Risk Assessments",
+ "ref": "SX 001",
+ "version": 1,
+ "defaults": {
+  "author": "Frank Boydell",
+  "reviewer": "Stuart Neale",
+  "emergency_contact": "Stuart Neale, Director",
+  "site_supervisor": "Stuart Neale",
+  "scope": "Supply and installation of windows, external doors and glazing to a new build housing development.",
+  "review_months": 12
+ },
+ "sections": [
+  {
+   "label": "Sequence of work",
+   "blocks": [
+    {
+     "t": "h",
+     "text": "General requirements"
+    },
+    {
+     "t": "b",
+     "text": "Sign into site and ensure arrangements are made with the Principal Contractor for work to commence."
+    },
+    {
+     "t": "b",
+     "text": "All installers will receive a site-specific induction from the Principal Contractor before work commences."
+    },
+    {
+     "t": "b",
+     "text": "Confirm with the site manager which plots are ready for installation: openings formed and checked to the window schedule, scaffold in place and tagged where external access is needed, and floors and stairwell protection fitted inside the plot."
+    },
+    {
+     "t": "b",
+     "text": "Assess the working area for access and egress and potential hazards. Report any hazards identified to the Principal Contractor."
+    },
+    {
+     "t": "b",
+     "text": "Good working methods will be employed in line with these RAMS."
+    },
+    {
+     "t": "h",
+     "text": "Delivery and storage of frames and glazing"
+    },
+    {
+     "t": "b",
+     "text": "Frames, doors and sealed glazing units are delivered on the company vehicle or by the supplier on stillages and A-frames. Deliveries are booked in with the site manager and follow the site traffic management plan."
+    },
+    {
+     "t": "b",
+     "text": "Unloading takes place on firm level ground in the area agreed with the site manager. Glass stillages are moved by telehandler or forklift provided by the Principal Contractor under their lift plan; installers do not ride on or walk under suspended loads."
+    },
+    {
+     "t": "b",
+     "text": "Frames and units are stored upright on A-frames or stillages, strapped, on level ground and away from site traffic routes. Units are never leaned loose against walls or scaffold. Minimum quantities are kept on site and anything not needed that day stays on the vehicle or in the compound."
+    },
+    {
+     "t": "b",
+     "text": "Units are carried into plots by two installers, or with a glass trolley or vacuum lifting equipment for large or heavy units. No glass is passed hand to hand up a scaffold or ladder."
+    },
+    {
+     "t": "h",
+     "text": "Installation of window frames"
+    },
+    {
+     "t": "b",
+     "text": "Check the opening against the window schedule and frame size. Remove any debris, nails or sharp edges from the reveal before offering up the frame."
+    },
+    {
+     "t": "b",
+     "text": "Frames are installed from inside the plot. The opening is approached from a floor with the correct protection in place; where the opening is below 1100mm the installer treats it as an edge and works back from it until the frame is fixed."
+    },
+    {
+     "t": "b",
+     "text": "Offer the frame into the opening, plumb, level and square it on packers, and fix through the frame into the structure with the specified fixings at the centres given by the system manufacturer. Fixings are drilled with an SDS drill fitted with on-tool extraction, or a dust shroud and M-class vacuum, and the installer wears a face-fitted FFP3 respirator while drilling masonry."
+    },
+    {
+     "t": "b",
+     "text": "The frame is fully fixed and secure before any installer leans on, works through or glazes it."
+    },
+    {
+     "t": "b",
+     "text": "Perimeter gaps are sealed with low-expansion PU foam and the external joint is sealed with silicone or the specified sealant, in line with the COSHH assessments. Trims and cills are fitted and cut to size with hand tools or a mitre saw in a ventilated area."
+    },
+    {
+     "t": "h",
+     "text": "Installation of external doors and bi-folds"
+    },
+    {
+     "t": "b",
+     "text": "Door sets and bi-fold frames are heavy and awkward. The lift is assessed for weight, size and route before it starts; a minimum of two installers lift door sets and a glass trolley or vacuum lifter is used where available."
+    },
+    {
+     "t": "b",
+     "text": "The frame is installed, packed and fixed as for windows, with the threshold bedded and sealed. Door leaves and bi-fold panels are hung once the frame is fixed and checked, and are adjusted and tested for operation before the installer leaves the plot."
+    },
+    {
+     "t": "h",
+     "text": "Glazing"
+    },
+    {
+     "t": "b",
+     "text": "Sealed units are glazed from inside the plot wherever the system allows. Units are placed on setting blocks, toe and heeled, and beaded in line with the system manufacturer's instructions so that the unit is secure and cannot be pushed out."
+    },
+    {
+     "t": "b",
+     "text": "Any unit that is cracked, chipped or scratched is not fitted. Damaged units are taped, labelled and stood safely on the stillage for return."
+    },
+    {
+     "t": "b",
+     "text": "Broken glass is cleared immediately into a labelled container, not into the general skip, with cut-resistant gloves and eye protection worn."
+    },
+    {
+     "t": "h",
+     "text": "External work from scaffold"
+    },
+    {
+     "t": "b",
+     "text": "Where external sealing, trims, cills or glazing have to be done from outside, the work is done from the Principal Contractor's scaffold. Installers check the scaffold tag is current and report any defect to the site manager; work does not start on a scaffold that is incomplete, untagged or altered."
+    },
+    {
+     "t": "b",
+     "text": "Materials and tools are not left on the scaffold at the end of the shift. Nothing is thrown from or dropped off the scaffold."
+    },
+    {
+     "t": "b",
+     "text": "Where an opening cannot be reached from the scaffold or from inside, a podium step or a MEWP operated by an IPAF-trained installer is used. Ladders are not used as a working platform for installation."
+    },
+    {
+     "t": "h",
+     "text": "Completion and handover"
+    },
+    {
+     "t": "b",
+     "text": "Each plot is left with all frames fixed, glazed, sealed and operating, with protective film in place where specified, and the work area clear of offcuts, packaging and glass."
+    },
+    {
+     "t": "b",
+     "text": "Ensure the Principal Contractor is notified on completion of all works in each plot, and before leaving site. Sign out of site."
+    },
+    {
+     "t": "b",
+     "text": "These RAMS do not cover the use of trestle systems or the removal of existing windows in occupied properties. If either is required, additional information will be issued."
+    }
+   ]
+  },
+  {
+   "label": "Training",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "The Principal Contractor will induct all installers on site."
+    },
+    {
+     "t": "p",
+     "text": "Installers on this site hold the following training:"
+    },
+    {
+     "t": "b",
+     "text": "CSCS (specific to their trade)"
+    },
+    {
+     "t": "b",
+     "text": "NVQ Level 2 or 3 Fenestration Installation, or working towards it under supervision."
+    },
+    {
+     "t": "b",
+     "text": "Manual handling and glass handling, including vacuum lifting equipment where it is used."
+    },
+    {
+     "t": "b",
+     "text": "Working at height."
+    },
+    {
+     "t": "b",
+     "text": "Face fit testing for the respirator issued to them."
+    },
+    {
+     "t": "b",
+     "text": "IPAF 3a/3b and PASMA where mobile access equipment is used."
+    },
+    {
+     "t": "b",
+     "text": "Site-specific RAMS."
+    },
+    {
+     "t": "p",
+     "text": "All staff are briefed on the contents of these RAMS and have signed our health and safety policy."
+    }
+   ]
+  },
+  {
+   "label": "Monitoring & supervision",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "The company will ensure that a Site Supervisor covers this development.  They will be responsible for the supervision of day-to-day work activities."
+    },
+    {
+     "t": "p",
+     "text": "The Principal Contractors Management team will monitor the overall working activities of all Contractors on site. This will be in line with their Construction Phase Health and Safety Plan, Policy and Health and safety management systems."
+    },
+    {
+     "t": "p",
+     "text": "The company will address any noncompliance areas identified within our own operations. Where any changes to working methods are identified, our RAMS will be revised to reflect this."
+    },
+    {
+     "t": "p",
+     "text": "The following will be implemented:"
+    },
+    {
+     "t": "b",
+     "text": "Monthly toolbox talks on related subjects."
+    },
+    {
+     "t": "b",
+     "text": "Quarterly Health and Safety Inspections. (Conducted by our supervisor or H&S consultant)"
+    },
+    {
+     "t": "p",
+     "text": "The above two procedures and findings will be communicated to the Principal Contractor."
+    }
+   ]
+  },
+  {
+   "label": "Working at Height",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "The Principal Contractor will provide a scaffold and internal fall protection for all installation work that requires it. The scaffold must be in line with the latest TG20 and SG4 standards and the Principal Contractor will fully manage the scaffold and internal fall protection measures. Installers will fully cooperate with the Principal Contractor's requirements and will report any defects immediately; work stops until the Principal Contractor has addressed them."
+    },
+    {
+     "t": "p",
+     "text": "Window and door openings are the main fall risk in this work. Before a frame is fixed, an opening with a cill below 1100mm is an unprotected edge. Installers approach the opening from inside, keep their body inside the plot, and do not lean out through, sit on or climb through an unglazed opening. Where the Principal Contractor has fitted temporary edge protection or opening guards, these are only removed as the frame is offered in and are refitted if the frame is not fixed the same day."
+    },
+    {
+     "t": "p",
+     "text": "Stairwell and floor-void protection inside the plot is the Principal Contractor's and is not altered by installers. If protection is missing or has been moved, the installer reports it and does not work on that floor until it is reinstated."
+    },
+    {
+     "t": "p",
+     "text": "Podium steps and hop ups are used for internal work at height above floor level. Installers will follow the requirements below when using step ladders, podiums and hop ups:"
+    },
+    {
+     "t": "b",
+     "text": "Pre-use checks are carried out and recorded."
+    },
+    {
+     "t": "b",
+     "text": "Installers must have the relevant skills, knowledge, training and experience in their use."
+    },
+    {
+     "t": "b",
+     "text": "Equipment is clean, not slippery and fully opened and locked when in use."
+    },
+    {
+     "t": "b",
+     "text": "Three points of contact are maintained on step ladders and there is no over-stretching."
+    },
+    {
+     "t": "b",
+     "text": "Class 1 industrial equipment only."
+    },
+    {
+     "t": "p",
+     "text": "Extension ladders are used for access only, not as a working platform, at a 1 in 4 angle, tied or footed, with three points of contact and no over-reaching. Glass and frames are never carried up a ladder."
+    },
+    {
+     "t": "p",
+     "text": "Where a MEWP is used it is operated only by IPAF-trained installers, on firm level ground, within the exclusion zone agreed with the site manager, with harnesses and restraint lanyards worn in boom-type machines."
+    }
+   ]
+  },
+  {
+   "label": "Principal contractor requirements",
+   "blocks": [
+    {
+     "t": "h",
+     "text": "Principal Contractor"
+    },
+    {
+     "t": "p",
+     "text": "The Principal Contractor will provide the following:"
+    },
+    {
+     "t": "b",
+     "text": "Welfare facilities"
+    },
+    {
+     "t": "b",
+     "text": "Safe access & egress to all areas"
+    },
+    {
+     "t": "b",
+     "text": "Scaffolding to latest TG:20 & SG4"
+    },
+    {
+     "t": "b",
+     "text": "Traffic management plan"
+    },
+    {
+     "t": "b",
+     "text": "First aid."
+    },
+    {
+     "t": "b",
+     "text": "Emergency procedures."
+    },
+    {
+     "t": "h",
+     "text": "Essential Pre-Start Requirements"
+    },
+    {
+     "t": "b",
+     "text": "Working drawings"
+    },
+    {
+     "t": "b",
+     "text": "Workshop talks"
+    },
+    {
+     "t": "b",
+     "text": "Pre-Construction Plan"
+    },
+    {
+     "t": "b",
+     "text": "Construction Phase Plan."
+    },
+    {
+     "t": "b",
+     "text": "RAMS evaluation documents"
+    },
+    {
+     "t": "b",
+     "text": "Contractual agreement."
+    },
+    {
+     "t": "b",
+     "text": "Tender contractor standards."
+    }
+   ]
+  },
+  {
+   "label": "Handling glass and glazing units",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Sealed units and glazed door panels are heavy, awkward and break. The following controls apply to all glass handling:"
+    },
+    {
+     "t": "b",
+     "text": "The weight of each unit is known from the glazing schedule before it is moved. Units over 25kg are moved by two installers; units over 50kg, or any unit that cannot be gripped and carried comfortably, are moved with a glass trolley, a vacuum lifter or mechanical means."
+    },
+    {
+     "t": "b",
+     "text": "Vacuum lifting equipment is inspected before use, used within its rated capacity on clean dry glass, and the vacuum is confirmed before the unit is lifted clear. Only installers trained on the equipment operate it."
+    },
+    {
+     "t": "b",
+     "text": "Cut-resistant gloves (EN 388 cut level 5 or D), wrist guards where issued, eye protection and safety boots are worn when handling glass."
+    },
+    {
+     "t": "b",
+     "text": "Units are carried on edge, never flat, with a clear route checked first and a second installer guiding where the route is tight."
+    },
+    {
+     "t": "b",
+     "text": "Units are set down upright on packers or an A-frame, never on their corner and never leaned loose."
+    },
+    {
+     "t": "b",
+     "text": "Nobody works directly below a unit that is being glazed from above, and no glass is handled from a ladder."
+    },
+    {
+     "t": "b",
+     "text": "Broken glass is cleared straight away into a dedicated labelled container."
+    }
+   ]
+  },
+  {
+   "label": "Drilling, fixing and cutting",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "The following safe system of work applies to the power tools used in installation:"
+    },
+    {
+     "t": "b",
+     "text": "Only trained and authorised installers use power tools, following the manufacturer's instructions, with a visual check before each use. Defective equipment is taken out of use immediately."
+    },
+    {
+     "t": "b",
+     "text": "Drilling into brick, block and concrete generates respirable crystalline silica. SDS drills are used with on-tool extraction, or a dust shroud and M-class vacuum, and the installer wears a face-fitted FFP3 respirator. Dry sweeping is not permitted; dust is cleaned up with the vacuum."
+    },
+    {
+     "t": "b",
+     "text": "Mitre saws and chop saws used for trims, cills and bead are set up in a ventilated area away from other trades, with the guard in place and the workpiece clamped or held against the fence. Eye and hearing protection is worn."
+    },
+    {
+     "t": "b",
+     "text": "Angle grinders and disc cutters are not normally required for this work. If one is needed it is used only by an installer with abrasive wheels training, with the guard fitted, in a designated area, with a hot works permit where the Principal Contractor requires one."
+    },
+    {
+     "t": "b",
+     "text": "Cartridge sealant guns and PU foam guns are used in line with the COSHH assessments, with nitrile gloves and eye protection."
+    },
+    {
+     "t": "b",
+     "text": "All portable electrical equipment is 110V or battery, PAT tested every three months on site, with leads routed to avoid trips and protected from damage and water."
+    },
+    {
+     "t": "b",
+     "text": "Work is planned so that other trades are not exposed to dust, noise or debris, and designated cutting areas are used where the site has them."
+    }
+   ]
+  },
+  {
+   "label": "Personal Protective Equipment",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "It is mandatory for installers to always wear the following PPE when on this site:"
+    },
+    {
+     "t": "b",
+     "text": "Hard hat to EN 397"
+    },
+    {
+     "t": "b",
+     "text": "Hi visibility vest or jacket to EN ISO 20471"
+    },
+    {
+     "t": "b",
+     "text": "Safety boots with toe cap and midsole protection to EN ISO 20345"
+    },
+    {
+     "t": "p",
+     "text": "The following PPE will be worn where required for the task:"
+    },
+    {
+     "t": "b",
+     "text": "Cut-resistant gloves (EN 388 cut level 5 or D) for handling glass, frames and trims"
+    },
+    {
+     "t": "b",
+     "text": "Nitrile gloves for sealants, foams and cleaning solvents"
+    },
+    {
+     "t": "b",
+     "text": "Eye protection to EN 166"
+    },
+    {
+     "t": "b",
+     "text": "Hearing protection EN 352 when using saws, drills and grinders"
+    },
+    {
+     "t": "b",
+     "text": "FFP3 face-fitted respirator for drilling masonry and any dusty cleaning down"
+    },
+    {
+     "t": "b",
+     "text": "Harness and restraint lanyard EN 361 in boom-type MEWPs"
+    },
+    {
+     "t": "b",
+     "text": "PPE must be used and maintained in line with the manufacturer's guidelines and procured to the standards above."
+    },
+    {
+     "t": "b",
+     "text": "Installers take reasonable care of their PPE and report any loss or defect to their supervisor."
+    },
+    {
+     "t": "p",
+     "text": "If PPE is not available to use, do not carry out the work and report it to your supervisor."
+    }
+   ]
+  },
+  {
+   "label": "Equipment required",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Hand tools"
+    },
+    {
+     "t": "p",
+     "text": "SDS drills, impact drivers and cordless drills (battery)"
+    },
+    {
+     "t": "p",
+     "text": "On-tool extraction and M-class vacuum"
+    },
+    {
+     "t": "p",
+     "text": "Mitre saw (110V) for trims and bead"
+    },
+    {
+     "t": "p",
+     "text": "Sealant and PU foam guns"
+    },
+    {
+     "t": "p",
+     "text": "Glass trolley, suction cups and vacuum lifting equipment"
+    },
+    {
+     "t": "p",
+     "text": "Podium steps, hop ups and step ladders"
+    },
+    {
+     "t": "p",
+     "text": "Scaffold (provided by the Principal Contractor)"
+    },
+    {
+     "t": "p",
+     "text": "Internal fall protection (provided by the Principal Contractor)"
+    },
+    {
+     "t": "p",
+     "text": "Telehandler or forklift for stillages (provided by the Principal Contractor)"
+    },
+    {
+     "t": "p",
+     "text": "MEWP where agreed with the Principal Contractor"
+    }
+   ]
+  },
+  {
+   "label": "Materials required",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "PVCu, aluminium and composite window frames and door sets"
+    },
+    {
+     "t": "p",
+     "text": "Sealed glazing units and glazed panels"
+    },
+    {
+     "t": "p",
+     "text": "Packers, fixings and fixing lugs"
+    },
+    {
+     "t": "p",
+     "text": "Low-expansion PU foam"
+    },
+    {
+     "t": "p",
+     "text": "Silicone and hybrid polymer sealants"
+    },
+    {
+     "t": "p",
+     "text": "Trims, cills, beads and cleaning solvent"
+    }
+   ]
+  },
+  {
+   "label": "Emergency procedures",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Emergency procedures will be provided by the Principal Contractor which are adequate for the size, location, and complexity of the site. This will be covered in the site induction and all operatives will be inducted before work commences. This will be reviewed by and Principal Contractor at relevant intervals."
+    },
+    {
+     "t": "p",
+     "text": "The Principal Contractor will provide qualified first aiders on site along with first aid equipment and facilities on site."
+    },
+    {
+     "t": "p",
+     "text": "The Principal Contractor will provide and manage a fire Safety plan for the buildings and site. This will be incorporated into the Principal Contractors Construction Phase Plan."
+    },
+    {
+     "t": "p",
+     "text": "In the event of any incidents or accidents, work must stop and be reported immediately to the Principal Contractor and Supervisor."
+    },
+    {
+     "t": "p",
+     "text": "An emergency rescue plan when working on scaffold will be formulated and implemented by the Principal Contractor and the Scaffold Contractor.  Operatives will be trained in this plan by the Principal Contractor and will follow the emergency procedures provided."
+    },
+    {
+     "t": "p",
+     "text": "Cuts from glass are the most likely injury in this work. Installers carry a first aid kit with large wound dressings on the vehicle, know where the site first aiders are, and apply direct pressure and raise the limb for any cut that bleeds freely while help is called."
+    }
+   ]
+  },
+  {
+   "label": "Protection of the public",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "The company will work in cooperation and coordination with the Principal Contractor in all measures required to protect the public and other people affected by works undertaken."
+    },
+    {
+     "t": "p",
+     "text": "It is essential that precautions are also taken to protect others who may be in the vicinity (including the public) from falling materials and tools.  In all cases loose materials and tools will be stored safely."
+    },
+    {
+     "t": "p",
+     "text": "When works are undertaken in areas where the public have access to the area being worked in will be segregated and warning signs displayed. When required an extra operative will be in the working areas and will actively monitor and prevent the public entering the working areas."
+    },
+    {
+     "t": "p",
+     "text": "The working areas will be cleared at the end of every shift, all equipment and materials will be stored in the site compound area."
+    }
+   ]
+  },
+  {
+   "label": "Traffic Management",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "All deliveries will be in line with the Principal Contractors Site Rules. Safe access, egress, and a full traffic management plan to all areas of site will be provided by the Principal Contractor. All operatives will comply with this plan and its requirements on site."
+    },
+    {
+     "t": "p",
+     "text": "Operatives must keep up to date with all Traffic management procedures. They must follow all the requirements including using pedestrian routes, parking arrangements, and cooperating with banksmen and drivers."
+    },
+    {
+     "t": "p",
+     "text": "Vehicle banksmen will be used on site where required and in public areas:"
+    }
+   ]
+  },
+  {
+   "label": "Access, egress and tidiness",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "All work areas must be left at the end of a shift in a clean, tidy and in a slip free condition. Materials must not be left on scaffolds at the end of the shift."
+    },
+    {
+     "t": "p",
+     "text": "Materials must be stored safely at all times."
+    },
+    {
+     "t": "p",
+     "text": "Operatives must consider other people working in their working zones and always ensure safe access and egress"
+    }
+   ]
+  },
+  {
+   "label": "Temporary works",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "The company will work in cooperation and coordination with the Principal Contractor with all temporary works for this project."
+    },
+    {
+     "t": "p",
+     "text": "Temporary designs will be provided by the Principal Contractor. All designs, working procedures and specifications will be followed by our operatives and management team."
+    }
+   ]
+  },
+  {
+   "label": "Environment, waste & Welfare",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "The Principal Contractor will provide welfare facilities in line with CDM 2015."
+    },
+    {
+     "t": "p",
+     "text": "The company will comply with the waste management systems provided by the Principal Contractor. Disposal and waste streams to be complied with by operatives on sites. The Principal Contractor will provide skips. Operatives will ensure the waste is not mixed and is segregated."
+    },
+    {
+     "t": "p",
+     "text": "Packaging, offcuts of PVCu and aluminium and glass are segregated into the streams the Principal Contractor provides. Glass is never put loose into a mixed skip. Empty sealant and foam cartridges are hazardous waste and go in the container provided."
+    },
+    {
+     "t": "p",
+     "text": "Generators will be enclosed in drip trays, which will adequately contain any leakage of fuel. These must be110% of the volume of the maximum storage of fuel. This will be in line with environmental guidance PPG 3."
+    },
+    {
+     "t": "p",
+     "text": "Storage of Liquid in Fuels, Oils, and COSHH substance will be stored within a drip tray capable for holding 25% of the total capacity."
+    },
+    {
+     "t": "p",
+     "text": "Storage and Use of Fuel Cans: Ensure that vessels used are appropriate for the fuel and that caps are securely fitted when not in use and they are restrained for transport."
+    },
+    {
+     "t": "p",
+     "text": "If a spill occurs on site, this will be contained immediately using spill kits and further leakage will be prevented i.e., close valve, right."
+    },
+    {
+     "t": "p",
+     "text": "A check will be made to ensure any spill has not reached any nearby drains, manholes, watercourses, or other sensitive areas.  If required any pathways will be dammed and any receptors bunded to prevent subsequent contamination"
+    },
+    {
+     "t": "p",
+     "text": "Spills will be reported in accordance with the Principal Contractors reporting procedures."
+    },
+    {
+     "t": "p",
+     "text": "The following information will be included in the report:"
+    },
+    {
+     "t": "b",
+     "text": "Material involved and pollution properties if applicable."
+    },
+    {
+     "t": "b",
+     "text": "Location"
+    },
+    {
+     "t": "b",
+     "text": "Whether it is in danger of entering drainage / watercourses"
+    },
+    {
+     "t": "b",
+     "text": "Quantity involved."
+    },
+    {
+     "t": "b",
+     "text": "Reason for spillage / responsibility"
+    },
+    {
+     "t": "p",
+     "text": "Any material used to clean up a spill will be collected and disposed of as hazardous waste."
+    }
+   ]
+  },
+  {
+   "label": "Lifting Operations",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Glass stillages and A-frames are lifted and moved by the Principal Contractor's telehandler or forklift under their lift plan; installers keep clear of the load and only approach when the driver signals."
+    },
+    {
+     "t": "p",
+     "text": "Vacuum lifting equipment used by the company is inspected and thoroughly examined under LOLER, used within its rated capacity and only by trained installers."
+    }
+   ]
+  },
+  {
+   "label": "Risk assessments",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "We have identified several risks in this method statement. These risks will be mitigated by implementing the control measures in the following risk assessments:"
+    },
+    {
+     "t": "b",
+     "text": "Working at height at window and door openings"
+    },
+    {
+     "t": "b",
+     "text": "Scaffold"
+    },
+    {
+     "t": "b",
+     "text": "Handling glass and glazing units"
+    },
+    {
+     "t": "b",
+     "text": "Manual handling"
+    },
+    {
+     "t": "b",
+     "text": "Lifting operations"
+    },
+    {
+     "t": "b",
+     "text": "Silica dust from drilling"
+    },
+    {
+     "t": "b",
+     "text": "Work equipment"
+    },
+    {
+     "t": "b",
+     "text": "Hand tools"
+    },
+    {
+     "t": "b",
+     "text": "Vibration"
+    },
+    {
+     "t": "b",
+     "text": "Noise"
+    },
+    {
+     "t": "b",
+     "text": "Fire"
+    },
+    {
+     "t": "b",
+     "text": "Working outdoors"
+    },
+    {
+     "t": "b",
+     "text": "Protection of the public"
+    },
+    {
+     "t": "b",
+     "text": "Traffic management"
+    },
+    {
+     "t": "b",
+     "text": "Site tidiness"
+    },
+    {
+     "t": "b",
+     "text": "Material storage"
+    },
+    {
+     "t": "b",
+     "text": "PPE"
+    },
+    {
+     "t": "b",
+     "text": "Monitoring and supervision"
+    },
+    {
+     "t": "b",
+     "text": "Training"
+    }
+   ]
+  },
+  {
+   "label": "COSHH Assessments",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "The use of the following substances hazardous to health has been identified:"
+    },
+    {
+     "t": "p",
+     "text": "Respirable crystalline silica (drilling brick, block and concrete)"
+    },
+    {
+     "t": "p",
+     "text": "Polyurethane expanding foam"
+    },
+    {
+     "t": "p",
+     "text": "Silicone and hybrid polymer sealants"
+    },
+    {
+     "t": "p",
+     "text": "PVCu cleaner and solvent wipes"
+    },
+    {
+     "t": "p",
+     "text": "Please refer to these COSHH assessments for the control measures required."
+    }
+   ]
+  },
+  {
+   "label": "Supporting forms",
+   "blocks": [
+    {
+     "t": "p",
+     "text": "H&S Registers"
+    },
+    {
+     "t": "p",
+     "text": "PC Permits"
+    },
+    {
+     "t": "p",
+     "text": "Inductions"
+    },
+    {
+     "t": "p",
+     "text": "Daily briefings"
+    },
+    {
+     "t": "p",
+     "text": "Construction Phase Plan"
+    }
+   ]
+  }
+ ],
+ "risks": [
+  {
+   "activity": "Installing frames and glazing at window and door openings",
+   "hazards": "Falls from height through unprotected openings\nFalls of materials onto people below",
+   "likelihood": 3,
+   "severity": 3,
+   "rating": 9,
+   "controls": "Frames are installed from inside the plot. An opening with a cill below 1100mm is treated as an unprotected edge until the frame is fixed: the installer keeps their body inside the plot and does not lean out through, sit on or climb through an unglazed opening.\nTemporary edge protection or opening guards fitted by the Principal Contractor are removed only as the frame is offered in and refitted if the frame is not fixed the same day.\nThe frame is fully fixed before anyone leans on, works through or glazes it.\nExternal sealing and trims are done from the scaffold, a podium or a MEWP, never from a ladder.\nAn exclusion zone is kept below any opening being worked on from above.",
+   "by_whom": "Con\nPC",
+   "residual": 3,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "The use of scaffolding provided by the Principal Contractor",
+   "hazards": "Falls of materials and people from scaffold",
+   "likelihood": 3,
+   "severity": 3,
+   "rating": 9,
+   "controls": "The Principal Contractor will provide a scaffold and internal fall protection for the external installation work that needs it. The scaffold must be in line with the latest Health and Safety Executive guidance, TG 20 standards and SG4 standards. The Principal Contractor will fully manage all the scaffold and internal fall protection measures. Operatives will fully cooperate with the Principal Contractors requirements for working on scaffold and internal fall protection. Any defects identified by the operatives must be reported to the Principal Contractor immediately and work must be stopped until the Principal Contractor has addressed the issues.",
+   "by_whom": "Contractor (Con)\nPrincipal Contractor\n(PC)",
+   "residual": 4,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Handling glass and glazing units",
+   "hazards": "Cuts and lacerations from glass\nCrush injuries to hands and feet\nSprains, strains and back injuries\nUnits falling and breaking",
+   "likelihood": 3,
+   "severity": 3,
+   "rating": 9,
+   "controls": "The weight of each unit is known from the glazing schedule before it is moved. Units over 25kg are two-person lifts; units over 50kg, or any unit that cannot be gripped and carried comfortably, are moved with a glass trolley, a vacuum lifter or mechanical means.\nVacuum lifters are inspected before use, used within their rated capacity on clean dry glass and operated only by trained installers.\nCut-resistant gloves (EN 388 cut level 5 or D), eye protection and safety boots are worn. Units are carried on edge with the route checked first, set down upright on packers or an A-frame and never leaned loose.\nNo glass is handled from a ladder or passed up a scaffold by hand.\nDamaged units are not fitted. Broken glass is cleared immediately into a labelled container.",
+   "by_whom": "Con",
+   "residual": 3,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Manual Handling\nUse of mechanical lifting devices to reduce manual lifting",
+   "hazards": "Sprains\nStrains\nBack injuries\nSoft tissue injuries \nHernias\nChronic pain",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "The Principal Contractor will provide good access and egress to working areas, so materials can be distributed effectively.\n \nThe following measures will be implemented by the Principal Contractor and the company to reduce manual handling:\n\nDesigning a traffic management to allow delivery of materials close to the working areas\nProviding a Telehandler.\nGlass trolleys, suction cups and vacuum lifting equipment\nDelivering frames and units to the plot on stillages rather than loose",
+   "by_whom": "PC\nCon",
+   "residual": 2,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Manual lifting activities",
+   "hazards": "Sprains\nStrains\nBack injuries\nSoft tissue injuries \nHernias\nChronic pain\nCuts & Bruises\nCrush injuries",
+   "likelihood": 2,
+   "severity": 2,
+   "rating": 4,
+   "controls": "All operatives will be trained and practice good lifting techniques when handling materials and tools. \n\nThe following guidance will be followed by operatives on site when undertaking manual handling operations:\n\nStand reasonably close to the load with feet about hip width apart, one foot pointing in direction moving. DO NOT OVERREACH\nSquat down on bending knees. KEEP BACK AS STRAIGHT AS YOU CAN\nPlace hands where they will not slip. GRAB FIRMLY \nBreathe in before lifting (Filling lungs helps to support the spine)\nStraighten up with legs, lift slowly / smoothly, don’t twist the body of jerk the load.\nHold load firmly and close to the body.\nEnsure view forward is not impeded.\nWhere two or more persons are involved in a lift, nominate one to give instructions. Each person to take equal share and work as a team.\nIf you are not happy lifting a load, tell your supervisor.",
+   "by_whom": "Con",
+   "residual": 2,
+   "persons": "Employee"
+  },
+  {
+   "activity": "Wearing the correct PPE in site areas",
+   "hazards": "Contact, impact, being struck by moving part, falling materials",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "It is mandatory for all operatives to always wear the following PPE when on site: \nHard hat to EN 397 \nHi visibility vest or jacket to EN ISO 20471  \nSafety boots with toe cap and midsole protection to EN ISO 20345.\n\nPPE must be used and maintained in line with manufactures guidelines.\nAll PPE must be procured in line with EN numbers stated in this section.\nIt is a requirement that operatives take reasonable care of P.P.E. and report any loss or defect to the Site Management. \nIf PPE is not available to use, do not carry out the work and report it to your supervisor.",
+   "by_whom": "Con \nPC",
+   "residual": 2,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Wearing PPE when handling glass and using power tools",
+   "hazards": "Cuts, eye injuries, noise and dust exposure",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "In addition to the standard site PPE installers wear:\nCut-resistant gloves (EN 388 cut level 5 or D) for glass, frames and trims\nNitrile gloves for sealants, foam and solvents\nEye protection to EN 166\nHearing protection EN 352 when using saws, drills and grinders\nFFP3 face-fitted respirator when drilling masonry or cleaning down dust. Installers are clean shaven for the respirator they have been fitted with.",
+   "by_whom": "Con",
+   "residual": 2,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Lifting operations: stillages and A-frames moved by telehandler or forklift",
+   "hazards": "Mechanical failure\nFalls of persons and materials\nLoads exceeding SWL\nUncontrolled loads",
+   "likelihood": 3,
+   "severity": 3,
+   "rating": 9,
+   "controls": "Stillages are lifted and moved by the Principal Contractor's telehandler or forklift under their lift plan, by a trained operator with a banksman where required.\nInstallers keep clear of the load and the machine's working radius and approach only when the driver signals.\nStillages are set down on firm level ground, away from traffic routes, and strapped before frames or units are removed.\nVacuum lifting equipment used by the company is thoroughly examined under LOLER and used within its rated capacity.",
+   "by_whom": "PC\nCon",
+   "residual": 4,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Drilling brick, block and concrete for frame fixings",
+   "hazards": "Breathing in respirable crystalline silica\nEye injury from debris",
+   "likelihood": 3,
+   "severity": 3,
+   "rating": 9,
+   "controls": "SDS drills are used with on-tool extraction, or a dust shroud and M-class vacuum.\nInstallers wear a face-fitted FFP3 respirator when drilling masonry and when cleaning down after drilling. Dry sweeping is not permitted; dust is cleared with the vacuum.\nThe number and depth of holes is kept to what the fixing specification requires.\nEye protection is worn. Other trades are kept out of the plot room while drilling where practical.",
+   "by_whom": "Con",
+   "residual": 3,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Cutting trims, cills and bead",
+   "hazards": "Contact with blade\nFlying debris\nPVCu and aluminium dust and swarf",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "Trims are cut with hand tools where practical. The mitre saw is set up in a ventilated area away from other trades, guard in place, workpiece held against the fence, with eye and hearing protection worn.\nSwarf and offcuts are cleared into the correct waste stream at the end of each plot.\nAngle grinders are not normally used; where one is needed it is used only by an installer with abrasive wheels training, with the guard fitted and a hot works permit where the site requires one.",
+   "by_whom": "Con",
+   "residual": 2,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Use of equipment that vibrates",
+   "hazards": "Vibration Induced White Finger\nHand Arm Vibration Syndrome",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "All operatives will be given the correct information, instruction, training and supervision which will include Knowing the symptoms of HAVS which are tingling of the fingers, loss of feeling and strength and fingers turning white in colour. Avoiding gripping too tightly or forcing a tool.\nAlways using the correct accessories for a tool. Taking regular breaks.\nKeeping warm and exercise hands during breaks.\nUse the correct posture and technique and let the tool do the work for you. Make account for weather conditions, cold and wet conditions inhibit blood circulation and increases the risks of vibration. Assessments will be made on the purchase of new equipment on HAVS to select the best equipment with high efficiency and low vibration. Equipment will be well maintained and kept in good working order.\nAssessments will be made in the use of equipment that vibrates less and alternatives methods and equipment implemented where practical.\nA full assessment will be recorded for all likely activities and records kept and shared with the PC",
+   "by_whom": "Con",
+   "residual": 2,
+   "persons": "Employee"
+  },
+  {
+   "activity": "Activities that generate Noise",
+   "hazards": "Hearing loss/ issues short term and long term",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "For any equipment that produces noise levels above 80 Decibels, hearing protection must be worn at all times during use.\nWhen working in areas that generate noise (If you work in areas where you need to shout to be heard then you require hearing protection) operatives will follow the guidance below:\nAlways wear ear protectors if exposed to noise hazard.\nDo not use cotton wool for ear protection; it is not effective.\nMake sure that ear plugs are a good fit in each ear and are properly inserted.\nRegularly cleanse re-usable earplugs to the manufacturer’s instructions\nUse disposable earplugs once only.\nHands should be clean when handling all types of earplugs.\nEarmuffs should be a good fit to the head all around the seal.\nEnsure that earmuffs are worn the correct way around.\nSee that muff seals are always in a serviceable condition.\nDo not alter the pressure of earmuffs by bending the head band\nRadios can increase the general level of noise and can cause annoyance, if these are allowed on site consider others.\nFor any equipment that produces noise levels above 80 Decibels, hearing protection must be worn at all times during use, Identified within the specific RAMS for the relevant equipment?",
+   "by_whom": "con",
+   "residual": 2,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Use of sealants, PU foam and solvent cleaners",
+   "hazards": "Skin and eye irritation\nSensitisation from isocyanates in PU foam\nInhalation of vapour in enclosed plots",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "Products are used in line with their COSHH assessments and safety data sheets.\nNitrile gloves and eye protection are worn. Foam is applied with a gun, not aerosol straw cans, and cured foam is trimmed rather than handled wet.\nPlots are ventilated while sealing and foaming; sealing is not done in a closed room.\nSkin contact is washed off with soap and water straight away; skin is not cleaned with solvent.\nEmpty cartridges and cans go in the hazardous waste container.",
+   "by_whom": "Con",
+   "residual": 2,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Working outdoors sun exposure",
+   "hazards": "Burning, sun related diseases",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "Sun Protection\nThe following guidance will be followed by operatives:\nTake care not to burn; this can take as little as 10 minutes. \nCover up with loose clothing. Keep your clothing on so that you do not expose unprotected areas. \nSeek shade during the hottest part of the day and take your breaks in the shade. \nFrequently apply sunscreen of SPF 15+ to parts of the body exposed to the sun. This will be provided.\nIf you are concerned about moles changing shape or colour and itching, weeping or bleeding, see your GP immediately.",
+   "by_whom": "Con",
+   "residual": 2,
+   "persons": "Employee"
+  },
+  {
+   "activity": "Use of work equipment",
+   "hazards": "Entanglement, electric shock, impact.",
+   "likelihood": 3,
+   "severity": 3,
+   "rating": 9,
+   "controls": "All equipment will have CE marks and have suitable guards, protection devices and system control devices (e.g. stop buttons.)\n\nAll operatives will ensure work equipment is kept well maintained and in safe. Visual inspections will be made before each work activity and recorded inspections will be undertaken. All defects must be reported.\n\nAll portable electrical equipment will be 110V and PAT tested at appropriate intervals. For construction site this will be undertaken every 3 months.\n\nAll testing equipment will be calibrated in line with manufacturer’s recommendations. When using work equipment, the correct PPE must be worn please refer to the PPE risk assessment\n\nMitre saw\nAdditional controls\nGuard in place and workpiece held against the fence.\nSet up in a ventilated area away from other trades.\nEye and hearing protection worn.\n\nSDS drill\nAdditional controls\nOn-tool extraction or dust shroud and M-class vacuum.\nFFP3 face-fitted respirator when drilling masonry.\nSide handle fitted and used; drill bit checked before use.",
+   "by_whom": "Con",
+   "residual": 2,
+   "persons": "Employee\nOther contractors\nVisitors"
+  },
+  {
+   "activity": "Using Hand tools",
+   "hazards": "Faulty Equipment\nIncorrect Selection of Tool\nCuts & Abrasions\nFlying Debris / Ejected Parts",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "Only well-maintained tools that conform to Current Standards to be used. Prior to use, check all tools for wear and damage. Any worn or damaged equipment must be returned to the stores, or your supervisor notified.\nOperative to conduct visual inspection before use and be fully conversant with its operation, utilising manufacturer's instructions, if applicable.\nAlways use the correct tool for the task in hand. During repetitive work (hammering, cutting) job rotate or take regular breaks to do alternative work.\nEnsure sharp edges of tools are protected when stored or carried. Always keep hands behind the cutting edge. Wear suitable PPE where required.\n•Safety glasses/ goggles to be worn when using hand tools that may cause flying particles. Demarcate area and direct flying particles away from combustibles or third parties",
+   "by_whom": "Con",
+   "residual": 3,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Protection of the public",
+   "hazards": "Fall of persons and materials\nExposure to dust and noise\nSlips trips and falls",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "The company will work in cooperation and coordination with the Principal Contractor in all measures required to protect the public and other people affected by works undertaken. \n It is essential that precautions are also taken to protect others who may be in the vicinity (including the public) from falling materials and tools.  In all cases loose materials and tools will be stored safely.  When works are undertaken in areas where the public have access to the area being worked in will be segregated and warning signs displayed. When required an extra operative will be in the working areas and will actively monitor and prevent the public entering the working areas",
+   "by_whom": "Con PC",
+   "residual": 2,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Fire",
+   "hazards": "Spread of Fire\nOutbreak of Fire\nFire Precautions\nMaintenance of Fire Precautions",
+   "likelihood": 3,
+   "severity": 3,
+   "rating": 9,
+   "controls": "Ensure all combustible materials and waste is stored away from perimeter fencing in the correct receptacles.\nNo hot work is to be carried out without a hot work permit and a fire extinguisher present.\nEnsure to look over the area of hot works for 30 mins after task.\nSite fires are prohibited and smoking only in designated areas.\nFlammable fuels / liquids to be stored in a locked steel container.",
+   "by_whom": "Con PC",
+   "residual": 4,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Traffic Management with construction activities and deliveries",
+   "hazards": "Injury to members of the public & operatives",
+   "likelihood": 3,
+   "severity": 3,
+   "rating": 9,
+   "controls": "All deliveries will be in line with the Principal Contractors Site Rules. Safe access, egress and a full traffic management plan to all areas of site will be provided by the Principal Contractor. All operatives will comply with this plan and its requirements on site.\n\nOperatives must keep up to date with all Traffic management procedures. They must follow all the requirements including using pedestrian routes, parking arrangements, and cooperating with banksmen and drivers.\n\n\nVehicle banksmen will be used on site where required and in public areas:\n\n\nBanksmen will undertake the following operations in public areas:\n\nDirecting the movement of vehicles on a work site.\nRecommending and laying out safe, on-site traffic systems.\nProviding clear, correct, and safe directions to plant operators.\nCommunicating with drivers and plant operators verbally and by radio and/or industry standard hand signals",
+   "by_whom": "Con PC",
+   "residual": 3,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Site tidiness\nWork undertaken by the company. \nWork areas under their control",
+   "hazards": "Slips, trips & falls",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "All working areas under the control of installers to be kept by the operatives clean, tidy and free from slipping and tripping hazards during working activities.\n\nThe Principal Contractor will provide means of moving waste materials off scaffolds. Waste skips will be provided by the Principal Contractor for removing waste materials. Materials will be removed from scaffolds and working areas in to designated areas.",
+   "by_whom": "Con PC",
+   "residual": 2,
+   "persons": "Employee\nOther contractors\nVisitors"
+  },
+  {
+   "activity": "Site tidiness\nOverall site conditions including access and egress to all working areas",
+   "hazards": "Slips, trips & falls",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "The principal contractor will provide safe means of access and egress under their control to all working areas for operatives which are free from slips, trips and fall hazards.\nSite to be organized and sequenced correctly to ensure they are clean and tidy.\nMaterials must be stored safely and in designated areas in line with the program and traffic management procedures.",
+   "by_whom": "Con PC",
+   "residual": 2,
+   "persons": "Employee\nOther contractors\nVisitors"
+  },
+  {
+   "activity": "Material Storage",
+   "hazards": "Slips, Trips & Falls.\nFalls from Height\nCrush Injuries\nLacerations / Cuts / Bruising",
+   "likelihood": 2,
+   "severity": 3,
+   "rating": 6,
+   "controls": "Ensure that the minimum amounts of materials are stored on site at any one time.\nClear working area of materials at the end of the working day and place in storage area\nEnsure storage compound is always kept clean and tidy.\nAll materials are to be stored on flat level ground.\nMaterials are not to be stacked more than two high, where palletised.\nDesignated person to be responsible for the materials storage area and clearing the work area, ensuring the above is addressed.\nFrames and glazing units are stored upright on A-frames or stillages, strapped, on level ground and away from traffic routes. Units are never leaned loose against walls or scaffold.",
+   "by_whom": "Con PC",
+   "residual": 2,
+   "persons": "Employee\nOther contractors\nVisitors"
+  },
+  {
+   "activity": "Working on an active construction site",
+   "hazards": "Collision with moving plant, structures or pedestrians\nSlips, trips & falls\nMajor site incident\nFalling materials, objects",
+   "likelihood": 3,
+   "severity": 3,
+   "rating": 9,
+   "controls": "The company will ensure operatives have the correct level of skills, knowledge, training, and experience to undertake the works required. This will be assessed on recruitment of staff and will be monitored by the management teams during work activities operatives on site. Checks will be made during the induction procedures on site by the Principal Contractor and the company.",
+   "by_whom": "Con",
+   "residual": 2,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Access and Egress",
+   "hazards": "Collision with moving plant, structures or pedestrians\nSlips, trips & falls\nMajor site incident\nFalling materials, objects",
+   "likelihood": 3,
+   "severity": 3,
+   "rating": 9,
+   "controls": "Ensure all personnel comply with the access/egress arrangements covered in the site induction.\nEnsure to utilise the walkways provided.\nAll personnel must adhere to the site traffic management plan and speed limits.\nAll personnel are required to sign into site upon arrival and sign out when leaving site.\nEnsure to don the appropriate PPE prior to accessing the site.\nUtilise the safest route possible and always remain vigilant.\nAll personnel must possess the required competency card to gain access to the site",
+   "by_whom": "Con \nPC",
+   "residual": 3,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  },
+  {
+   "activity": "Falls from vehicles",
+   "hazards": "Falls of materials and people from vehicles",
+   "likelihood": 3,
+   "severity": 3,
+   "rating": 9,
+   "controls": "Frames and units are unloaded from the company vehicle or the supplier's vehicle from ground level wherever possible. Where an installer has to work on the bed of a vehicle, the vehicle is on level ground with the handbrake on, edge protection or a step is used for access, and nobody stands on the bed while a stillage is being lifted off by machine.",
+   "by_whom": "Con",
+   "residual": 4,
+   "persons": "Employee\nOther contractors\nVisitors\nPublic"
+  }
+ ],
+ "coshh": [
+  {
+   "substance": "Respirable crystalline silica (drilling brick, block and concrete)",
+   "symbols": [
+    "Irritant/Harmful"
+   ],
+   "health_risks": "Irritant to skin - can cause dermatitis or cement burns\nIrritant to eyes\nHarmful if inhaled or digested\nExposure 0.01 8hr TWA",
+   "first_aid": "If ingested - drink plenty of water and seek medical advice\nIf spilt on skin - wash with soap and water immediately\nIf dermatitis occurs, seek advice from a medical practitioner \nIf contact with eyes, irrigate with plenty of clean water and seek medical advice\nReport any incident to site manager for entry into accident book",
+   "controls": "SDS drills are used with on-tool extraction, or a dust shroud and M-class vacuum, and a face-fitted FFP3 respirator is worn when drilling masonry and when cleaning down afterwards. Dry sweeping is not permitted.\nAll installers must use the correct make and model of respirator that they have been fitted for and be clean shaven for it to seal.\nEye protection, hearing protection and gloves are worn as the task requires. Hands are washed before eating, drinking or smoking.",
+   "review": "Please see Health and Safety Data sheet. This COSHH Assessment will be reviewed within 12 months from the date of assessment or sooner if there is a change in type of material, a change in the storage method or environment, or change in the work method or environment."
+  },
+  {
+   "substance": "Polyurethane expanding foam (gun grade, low expansion)",
+   "symbols": [
+    "Irritant/Harmful",
+    "Flammable",
+    "Health hazard"
+   ],
+   "health_risks": "Contains diphenylmethane diisocyanate (MDI). Harmful if inhaled; may cause allergy or asthma symptoms or breathing difficulties if inhaled; may cause an allergic skin reaction; irritating to eyes, skin and respiratory system; suspected of causing cancer. Extremely flammable aerosol; pressurised container.",
+   "first_aid": "Skin: remove uncured foam with a dry cloth, then wash with soap and water. Do not use solvent on skin. Cured foam wears off; do not pick at it.\nEyes: irrigate with clean water for at least 15 minutes and seek medical advice.\nInhalation: move to fresh air; seek medical advice if wheezing or breathing difficulty develops.\nIngestion: rinse mouth, do not induce vomiting, seek medical advice.\nReport any incident to the site manager for entry into the accident book.",
+   "controls": "Used only with a foam gun by trained installers; aerosol straw cans are not used.\nNitrile gloves, eye protection and long sleeves are worn. Plots are ventilated while foaming and foaming is not done in a closed room.\nCans are kept away from heat, sparks and direct sunlight, not pierced or burned after use, and stored upright in the vehicle. Gun cleaner is used in a ventilated area with gloves.\nAnyone with asthma or a known isocyanate sensitivity does not use PU foam and tells their supervisor.\nEmpty and part-used cans are disposed of as hazardous waste in the container provided, never in the general skip.",
+   "review": "Please see Health and Safety Data sheet. This COSHH Assessment will be reviewed within 12 months from the date of assessment or sooner if there is a change in type of material, a change in the storage method or environment, or change in the work method or environment."
+  },
+  {
+   "substance": "Silicone and hybrid polymer sealants",
+   "symbols": [
+    "Irritant/Harmful"
+   ],
+   "health_risks": "Neutral cure silicones release small amounts of oxime or alcohol vapour as they cure; acetoxy silicones release acetic acid vapour. Vapour irritates the eyes, nose and throat in poorly ventilated rooms. Uncured sealant irritates skin on prolonged contact and some products are skin sensitisers.",
+   "first_aid": "Skin: wipe off uncured sealant with a dry cloth and wash with soap and water.\nEyes: irrigate with clean water for 15 minutes and seek medical advice if irritation persists.\nInhalation: move to fresh air.\nIngestion: rinse mouth and seek medical advice.\nReport any incident to the site manager for entry into the accident book.",
+   "controls": "Applied with a cartridge gun in ventilated plots; windows or doors are left open while sealing internally.\nNitrile gloves and eye protection are worn. Sealant is tooled with a tooling blade or wetted finger over a glove, not bare skin.\nHands are washed before eating, drinking or smoking.\nUsed cartridges and rags go in the waste stream the Principal Contractor provides for them.",
+   "review": "Please see Health and Safety Data sheet. This COSHH Assessment will be reviewed within 12 months from the date of assessment or sooner if there is a change in type of material, a change in the storage method or environment, or change in the work method or environment."
+  },
+  {
+   "substance": "PVCu cleaner and solvent wipes",
+   "symbols": [
+    "Irritant/Harmful",
+    "Flammable"
+   ],
+   "health_risks": "Solvent-based cleaners and wipes are flammable and their vapour irritates the eyes and respiratory system and can cause drowsiness or dizziness in enclosed spaces. Repeated skin contact degreases the skin and can cause dermatitis.",
+   "first_aid": "Skin: wash with soap and water; apply moisturiser if dry.\nEyes: irrigate with clean water for 15 minutes and seek medical advice if irritation persists.\nInhalation: move to fresh air.\nIngestion: do not induce vomiting; seek medical advice.\nReport any incident to the site manager for entry into the accident book.",
+   "controls": "Used in small quantities in ventilated plots. Nitrile gloves and eye protection are worn.\nKept away from heat, sparks and hot works. Containers are closed when not in use and stored upright in the vehicle.\nSolvent is never used to clean skin. Used wipes and rags are disposed of in a lidded container.",
+   "review": "Please see Health and Safety Data sheet. This COSHH Assessment will be reviewed within 12 months from the date of assessment or sooner if there is a change in type of material, a change in the storage method or environment, or change in the work method or environment."
+  }
+ ],
+ "pc_signoff_text": "Any changes to the agreed working practices must be confirmed between the Principal Contractor and Contractor. \n\nThe RAMS will need revising and the new measures must be implemented on site. If the agreed practices are not implemented by the Principal Contractor, we reserve the right to stop work on site & will not be held liable for any additional costs incurred.",
+ "operative_signoff_text": "In signing these site-specific RAMS, I agree to the following:\n\nI confirm that I have read and fully understood the content of this site-specific RAMS.\nI confirm to work to the practices in these site-specific RAMS and will record all the necessary documentation required from my role and responsibilities.\nI fully understand all the requirements within these site-specific RAMS and understand that failure to comply with its contents will result in disciplinary procedures.\nI will stop work and report any accidents, near misses or dangerous occurrences immediately to the site manager and my employer.\nI have adequate training, knowledge, training and experience in the work required to be undertaken and will request information, instruction, training, and supervision if required.",
+ "note": "Built for Solix Frame Solutions from the Safety Simplified window and door installation RAMS; reviewed by Safety Simplified before first issue"
+}

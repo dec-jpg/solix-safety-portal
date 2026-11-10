@@ -1,4 +1,4 @@
-// Operative pages opened from WhatsApp links: toolbox talks (/t/TOKEN) and job packs (/j/TOKEN).
+// Operative pages opened from WhatsApp links: toolbox talks (/t/TOKEN), job packs (/j/TOKEN) and the health questionnaire (/h/TOKEN).
 const BRAND = {};
 (() => {
   const app = document.getElementById('app');
@@ -67,8 +67,8 @@ const BRAND = {};
 
   // ---------- who are you ----------
   function identify() {
-    head(MODE === 't' ? 'Toolbox talk' : 'Job pack', 'Sign-off');
-    render(`<h1>Who's signing?</h1><p class="muted">Enter your name and mobile. You only do this once on this phone.</p>
+    head(MODE === 't' ? 'Toolbox talk' : MODE === 'h' ? 'Health questionnaire' : 'Job pack', MODE === 'h' ? 'Confidential' : 'Sign-off');
+    render(`<h1>${MODE === 'h' ? 'Who is this for?' : "Who's signing?"}</h1><p class="muted">Enter your name and mobile. You only do this once on this phone.</p>
       <div class="field"><label for="n">First name and surname</label><input id="n" autocomplete="name"></div>
       <div class="field"><label for="p">Mobile number</label><input id="p" type="tel" autocomplete="tel" inputmode="tel"></div>
       <button class="btn big" id="go">Continue</button>`);
@@ -171,20 +171,25 @@ const BRAND = {};
     head(pack.job.name, ['Job pack', pack.job.ref].filter(Boolean).join(' · '));
     const docs = pack.documents;
     const toSign = docs.filter(d => d.requires_signoff && !d.signed).length;
-    const KIND = { rams: 'RAMS', permit: 'Permit', plan: 'Drawing / plan', other: 'Document' };
+    const KIND = { rams: 'RAMS', permit: 'Permit', plan: 'Drawing / plan', other: 'Document', briefing: 'Site briefing' };
     render(`${whoBar()}
       ${docs.length ? (toSign ? `<div class="note warn">${toSign} document${toSign === 1 ? '' : 's'} to read and sign.</div>` : '<div class="note ok">You have signed everything for this job.</div>') : '<div class="note info">No documents have been added to this job yet.</div>'}
       ${docs.map(d => `<div class="doc-card ${!d.requires_signoff ? 'info' : d.signed ? 'done' : ''}"><div><span class="k">${KIND[d.kind] || 'Document'}${d.revision ? ` · rev ${esc(d.revision)}` : ''}</span><b>${esc(d.title)}</b>
           ${d.requires_signoff ? (d.signed ? '<span class="pill yes">Signed</span>' : '<span class="pill no">Not signed</span>') : '<span class="pill grey">Read only</span>'}</div>
-        ${d.requires_signoff && !d.signed ? `<button class="btn" data-doc="${d.id}">Read &amp; sign</button>` : `<a class="btn ghost" href="/api/p/j/${TOKEN}/doc/${d.id}" target="_blank" rel="noopener">Open</a>`}</div>`).join('')}`);
+        ${d.requires_signoff && !d.signed ? `<button class="btn" data-doc="${d.id}">${d.content ? 'Read &amp; confirm' : 'Read &amp; sign'}</button>` : d.content ? '' : `<a class="btn ghost" href="/api/p/j/${TOKEN}/doc/${d.id}" target="_blank" rel="noopener">Open</a>`}</div>`).join('')}`);
     app.querySelectorAll('[data-doc]').forEach(b => (b.onclick = () => signDoc(docs.find(d => String(d.id) === b.dataset.doc))));
   }
 
   function signDoc(d) {
-    render(`${whoBar()}<h1>${esc(d.title)}</h1><p class="muted">${[d.reference, d.revision && `Revision ${d.revision}`].filter(Boolean).map(esc).join(', ')}</p>
-      <a class="btn big ghost" href="/api/p/j/${TOKEN}/doc/${d.id}" target="_blank" rel="noopener" id="open">Open the document</a>
+    const rams = d.content ? (pack.documents || []).find(x => x.kind === 'rams') : null;
+    render(`${whoBar()}<h1>${esc(d.title)}</h1><p class="muted">${[d.reference, d.revision && `Issue ${d.revision}`].filter(Boolean).map(esc).join(', ')}</p>
+      ${d.content ? `<div class="ind-section"><div class="body">${esc(d.content)}</div></div>
+        ${rams ? `<a class="btn big ghost" href="/api/p/j/${TOKEN}/doc/${rams.id}" target="_blank" rel="noopener">Open the full RAMS</a>` : ''}
+        <p class="small muted" style="margin:.6rem 0 1.2rem">If anything about this site is unclear, ask your supervisor before you start.</p>
+        <label class="check" style="margin-bottom:1rem"><input type="checkbox" id="ok"> I have been briefed on this site, have read the RAMS and will work to them.</label>`
+      : `<a class="btn big ghost" href="/api/p/j/${TOKEN}/doc/${d.id}" target="_blank" rel="noopener" id="open">Open the document</a>
       <p class="small muted" style="margin:.6rem 0 1.2rem">Read it all the way through. If anything is unclear, ask your supervisor before you start.</p>
-      <label class="check" style="margin-bottom:1rem"><input type="checkbox" id="ok"> I have read and understood this document and will work to it.</label>
+      <label class="check" style="margin-bottom:1rem"><input type="checkbox" id="ok"> I have read and understood this document and will work to it.</label>`}
       ${sigBlock}<button class="btn big" id="go">Sign</button>
       <p class="link-row"><button class="btn quiet" id="back">Back to the job pack</button></p>`);
     const pad = wireSig();
@@ -193,14 +198,72 @@ const BRAND = {};
       if (!$('#ok').checked) return showErr('Tick the box to confirm you have read it.');
       if (pad.empty()) return showErr('Sign in the box first.');
       const btn = $('#go'); busy(btn, true, 'Sending');
-      try { await api(`/j/${TOKEN}/doc/${d.id}/sign`, { signature: pad.data() }); done('Signed', `${d.title} is signed.`); }
+      try { await api(`/j/${TOKEN}/doc/${d.id}/sign`, { signature: pad.data() }); done(d.content ? 'Briefed' : 'Signed', d.content ? 'Your site briefing is recorded. Thanks.' : `${d.title} is signed.`); }
       catch (e) { busy(btn, false); showErr(e.message); }
+    };
+  }
+
+
+  // ---------- occupational health questionnaire ----------
+  // One page, same shape as a toolbox talk: details, three sections of yes/no questions, declaration and signature.
+  async function healthCheck() {
+    const d = await api('/h/' + TOKEN);
+    const Q = d.questionnaire;
+    head('Health questionnaire', 'Confidential');
+    document.querySelector('.si-head').style.display = 'none';
+    const num = n => `<span class="tbt-num">${n}</span>`;
+    const yn = x => `<div class="quiz-q hq" data-q="${x.id}"><b>${esc(x.id)}. ${esc(x.text)}</b><div class="opts opts-yn">
+        <label><input type="radio" name="${x.id}" value="yes"> Yes</label><label><input type="radio" name="${x.id}" value="no"> No</label></div>
+        ${x.detail ? `<div class="field hq-detail hidden" style="margin:.7rem 0 0"><label class="small muted">${esc(x.detail)}</label><input data-detail="${x.id}" maxlength="600"></div>` : ''}</div>`;
+    render(`<article class="tbt">
+      <div class="tbt-hero"><p class="tbt-ref">${esc(BRAND.name || '')} · Health surveillance</p><h1>Health questionnaire</h1>
+        <p class="tbt-sub">Hand-arm vibration, noise and skin. Answer every question honestly: it is here to protect your health, not to affect your job. Your answers are confidential and go only to the person responsible for health and safety.</p></div>
+      ${whoBar()}
+      ${d.last ? `<div class="note info">Your last questionnaire was on ${new Date(d.last.submitted_at).toLocaleDateString('en-GB')}. Fill this one in if it is your annual review or you have new symptoms.</div>` : ''}
+      <section class="tbt-sec">${num(1)}<h2>About you</h2>
+        <div class="field"><label for="dob">Date of birth</label><input id="dob" type="date" max="${new Date().toISOString().slice(0, 10)}"></div>
+        <div class="field"><label for="kind">Which questionnaire is this?</label><select id="kind"><option value="">Choose</option>${Object.entries(Q.kinds).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('')}</select></div>
+        <div class="field"><label for="tir">How long have you been in your current role?</label><input id="tir" maxlength="80" placeholder="e.g. 6 years"></div>
+        <div class="field"><label for="prev">Previous jobs where you regularly used vibrating tools or worked in noise</label><textarea id="prev" rows="3" maxlength="1500" placeholder="Employer, job, rough dates, tools used. Leave blank if none."></textarea></div>
+      </section>
+      ${Q.sections.map((s, i) => `<section class="tbt-sec">${num(i + 2)}<h2>${esc(s.title)}</h2><p class="muted">${esc(s.intro)}</p>${s.questions.map(yn).join('')}</section>`).join('')}
+      <section class="tbt-sec tbt-sign">${num(Q.sections.length + 2)}<h2>Declaration</h2>
+        <label class="check" style="margin-bottom:1rem"><input type="checkbox" id="ok"> ${esc(Q.declaration)}</label>
+        ${sigBlock}<button class="btn big" id="go">Sign and send</button></section>
+      <p class="tbt-foot">Health surveillance questionnaire · Prepared by Safety Simplified Ltd for ${esc(BRAND.name || '')}</p>
+    </article>`);
+    app.querySelectorAll('.hq input[type=radio]').forEach(el => (el.onchange = () => {
+      const card = el.closest('.hq'); const det = card.querySelector('.hq-detail');
+      if (det) det.classList.toggle('hidden', el.value !== 'yes');
+      card.classList.remove('wrong');
+    }));
+    const pad = wireSig();
+    $('#go').onclick = async () => {
+      const answers = {};
+      const missing = [];
+      app.querySelectorAll('.hq').forEach(card => {
+        const id = card.dataset.q; const el = card.querySelector('input[type=radio]:checked');
+        card.classList.toggle('wrong', !el);
+        if (!el) return missing.push(id);
+        const det = card.querySelector('[data-detail]');
+        answers[id] = { a: el.value, d: det ? det.value : '' };
+      });
+      if (!$('#dob').value) return showErr('Enter your date of birth.');
+      if (!$('#kind').value) return showErr('Choose which questionnaire this is.');
+      if (missing.length) { showErr(`Answer every question (${missing.length} left).`); const f = app.querySelector('.hq.wrong'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+      if (!$('#ok').checked) return showErr('Tick the declaration.');
+      if (pad.empty()) return showErr('Sign in the box first.');
+      const btn = $('#go'); busy(btn, true, 'Sending');
+      try {
+        const r = await api('/h/' + TOKEN, { dob: $('#dob').value, kind: $('#kind').value, time_in_role: $('#tir').value, previous_exposure: $('#prev').value, answers, declared: true, signature: pad.data() });
+        done('Sent', r.flagged ? 'Thanks. Some of your answers need a follow-up, so the person responsible for health and safety will be in touch. You do not need to wait for your next review to report new symptoms.' : 'Thanks. Your questionnaire has been recorded. If you develop any new symptoms, tell your supervisor straight away.');
+      } catch (e) { busy(btn, false); showErr(e.message); }
     };
   }
 
   // ---------- start ----------
   function start() {
-    const go = MODE === 't' ? toolboxTalk : jobPack;
+    const go = MODE === 't' ? toolboxTalk : MODE === 'h' ? healthCheck : jobPack;
     go().catch(e => render(`<div class="note err">${esc(e.message)}</div>`));
   }
   fetch('/api/p/brand').then(r => r.json()).then(b => { Object.assign(BRAND, b); document.getElementById('logo').alt = b.name; }).catch(() => {});

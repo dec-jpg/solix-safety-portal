@@ -16,8 +16,10 @@ app.get('/healthz', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/p', require('./routes/public'));
 app.use('/api/admin', require('./routes/admin'));
-app.use('/api/tresor', require('./routes/tresor'));
+app.use('/api/admin/rams', require('./routes/rams'));
+app.use('/api/admin/health', require('./routes/health'));
 app.use('/api/admin/policies', require('./routes/policies'));
+app.use('/api/tresor', require('./routes/tresor'));
 
 // Branding, from this client's build
 app.get('/api/brand', (req, res) => res.json(publicBrand()));
@@ -31,7 +33,7 @@ const pub = path.join(__dirname, 'public');
 app.use(express.static(pub, { index: false, maxAge: 0 }));
 app.get('/', (req, res) => res.redirect('/admin'));
 app.get('/admin', (req, res) => res.sendFile(path.join(pub, 'admin.html')));
-app.get(['/t/:token', '/j/:token'], (req, res) => res.sendFile(path.join(pub, 'op.html')));
+app.get(['/t/:token', '/j/:token', '/h/:token'], (req, res) => res.sendFile(path.join(pub, 'op.html')));
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }));
 app.use((err, req, res, next) => {

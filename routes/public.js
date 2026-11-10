@@ -1,12 +1,14 @@
 // Operative-facing API, used by links shared on WhatsApp:
 //   /t/TOKEN  a toolbox talk: read, answer the questions, sign
 //   /j/TOKEN  a job pack: read the RAMS and site documents, sign each one that needs it
+//   /h/TOKEN  the occupational health questionnaire (HAVS, noise, skin): answer and sign
 // Operatives identify themselves with name and mobile. If they match the register they are linked
 // straight away; if not, the signature is still recorded and the office links it later.
 const express = require('express');
 const { q } = require('../lib/db');
 const { token, clean, normPhone, surname, validImage } = require('../lib/util');
-const { publicBrand } = require('../lib/brand');
+const { publicBrand, getSetting } = require('../lib/brand');
+const health = require('../lib/health');
 
 const r = express.Router();
 
@@ -17,7 +19,15 @@ async function findOperative(name, phone, tok) {
   }
   const p = normPhone(phone);
   if (p.length < 10 || !name) return null;
-  return (await q('SELECT * FROM operatives WHERE phone = $1 AND active', [p])).rows.find(o => surname(o.full_name) === surname(name)) || null;
+  const byPhone = (await q('SELECT * FROM operatives WHERE phone = $1 AND active', [p])).rows.find(o => surname(o.full_name) === surname(name));
+  if (byPhone) return byPhone;
+  // First time on a phone: an exact, unique name match on the register with no mobile on file yet is taken as them, and the mobile is kept.
+  const byName = (await q('SELECT * FROM operatives WHERE LOWER(full_name) = LOWER($1) AND active', [clean(name, 120)])).rows;
+  if (byName.length === 1 && !byName[0].phone) {
+    await q('UPDATE operatives SET phone = $1 WHERE id = $2', [p, byName[0].id]);
+    return { ...byName[0], phone: p };
+  }
+  return null;
 }
 
 function who(req) {
@@ -97,8 +107,8 @@ r.get('/j/:token', async (req, res) => {
   if (!j) return res.status(404).json({ error: 'This job pack link is not active. Ask the office for the current link.' });
   const w = who(req);
   const op = await findOperative(w.name, w.phone, w.tok);
-  const docs = (await q(`SELECT id, kind, title, reference, revision, requires_signoff, file_name, created_at FROM documents
-      WHERE job_id = $1 AND current ORDER BY CASE kind WHEN 'rams' THEN 0 WHEN 'permit' THEN 1 WHEN 'plan' THEN 2 ELSE 3 END, title`, [j.id])).rows;
+  const docs = (await q(`SELECT id, kind, title, reference, revision, requires_signoff, file_name, content, created_at FROM documents
+      WHERE job_id = $1 AND current ORDER BY CASE kind WHEN 'briefing' THEN 0 WHEN 'rams' THEN 1 WHEN 'permit' THEN 2 WHEN 'plan' THEN 3 ELSE 4 END, title`, [j.id])).rows;
   for (const d of docs) d.signed = d.requires_signoff ? await alreadySigned('document_id', d.id, op, w) : null;
   res.json({ job: { name: j.name, ref: j.ref, address: j.address, client: j.client }, documents: docs });
 });
@@ -127,6 +137,37 @@ r.post('/j/:token/doc/:id/sign', async (req, res) => {
   // Someone signing a job pack who is on the register gets added to the job team.
   if (op) await q('INSERT INTO job_operatives (job_id, operative_id) VALUES ($1,$2) ON CONFLICT DO NOTHING', [j.id, op.id]);
   res.json({ ok: true });
+});
+
+// ---------- occupational health questionnaire ----------
+async function healthToken(t) { return !!t && t === (await getSetting('health_token')); }
+const date = v => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || '')) ? v : null);
+
+r.get('/h/:token', async (req, res) => {
+  if (!(await healthToken(req.params.token))) return res.status(404).json({ error: 'This health questionnaire link is not active. Ask the office for the current link.' });
+  const w = who(req);
+  const op = await findOperative(w.name, w.phone, w.tok);
+  const last = op ? (await q('SELECT submitted_at, kind FROM health_checks WHERE operative_id = $1 ORDER BY submitted_at DESC LIMIT 1', [op.id])).rows[0] : null;
+  res.json({ questionnaire: health.publicDefinition(), last: last || null });
+});
+
+r.post('/h/:token', async (req, res) => {
+  if (!(await healthToken(req.params.token))) return res.status(404).json({ error: 'This health questionnaire link is not active.' });
+  const w = who(req);
+  const op = await findOperative(w.name, w.phone, w.tok);
+  if (!op && (!w.name || w.phone.length < 10)) return res.status(400).json({ error: 'Enter your name and mobile number first.' });
+  const b = req.body || {};
+  if (!health.KINDS[b.kind]) return res.status(400).json({ error: 'Choose which questionnaire this is.' });
+  if (!date(b.dob)) return res.status(400).json({ error: 'Enter your date of birth.' });
+  const ev = health.evaluate(b);
+  if (!ev.ok) return res.status(400).json({ error: ev.error });
+  if (b.declared !== true) return res.status(400).json({ error: 'Tick the declaration to confirm your answers.' });
+  if (!validImage(req.body.signature, 400_000)) return res.status(400).json({ error: 'Sign in the box to confirm.' });
+  const row = (await q(`INSERT INTO health_checks (operative_id, name_given, phone_given, dob, kind, time_in_role, previous_exposure, answers, flags, signature)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
+    [op ? op.id : null, op ? op.full_name : w.name, w.phone || (op && op.phone) || null, b.dob, b.kind, clean(b.time_in_role, 80), clean(b.previous_exposure, 1500),
+      JSON.stringify(ev.answers), JSON.stringify(ev.flags), req.body.signature])).rows[0];
+  res.json({ ok: true, id: row.id, flagged: ev.flags.length > 0 });
 });
 
 module.exports = r;

@@ -281,6 +281,15 @@ body.signin { background: var(--paper); min-height: 100vh; }
 .tbt-foot { text-align: center; font-size: .78rem; color: var(--faint); margin: 1.5rem 0 0; }
 @media (max-width: 600px) { .tbt-sec { padding: 18px 16px 18px 58px; } .tbt-num { left: 12px; width: 30px; height: 30px; } .tbt-hero { padding: 20px 18px; } .tbt-hero h1 { font-size: 1.4rem; } }
 .tbt-ref { color: #f0b8c6; }
-
+.risk-edit td { padding: .3rem; vertical-align: top; }
+.risk-edit textarea, .risk-edit input { width: 100%; min-width: 60px; font-size: .8rem; padding: .35rem .45rem; }
+.risk-edit td:nth-child(5) { min-width: 320px; } .risk-edit td:nth-child(1), .risk-edit td:nth-child(2), .risk-edit td:nth-child(8) { min-width: 150px; }
+.risk-edit td:nth-child(3), .risk-edit td:nth-child(4), .risk-edit td:nth-child(7) { width: 58px; }
 .pol-doc h2 { font-size: 1.15rem; margin-bottom: .6rem; } .pol-doc h3 { font-size: .98rem; margin: .9rem 0 .3rem; } .pol-doc p, .pol-doc li { font-size: .93rem; line-height: 1.55; } .pol-doc ul { padding-left: 1.3rem; margin: .3rem 0 .6rem; }
 .sig-wrap { background: #fff; border: 1.5px dashed #c8c0b3; border-radius: 12px; padding: .4rem; margin-bottom: .4rem; } .sig-wrap canvas { width: 100%; height: 150px; display: block; touch-action: none; border-radius: 8px; }
+
+/* health questionnaire */
+.hq .opts-yn { grid-template-columns: 1fr 1fr; }
+.hq .hidden { display: none; }
+.hq-detail input { width: 100%; }
+.si-body textarea, .si-body select { width: 100%; }
