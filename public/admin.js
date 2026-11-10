@@ -682,7 +682,7 @@
     setMain(`<div class="ad-head"><div><p class="muted">People who signed but didn't match anyone on the register (new starter, different number, or a typo). Match them to someone, or add them as a new {op}.</p></div></div>
       ${Object.keys(groups).length ? Object.values(groups).map(g => `<div class="panel"><div class="ad-head" style="margin:0 0 .6rem"><div><h2 style="margin:0">${esc(g[0].name_given)}</h2><p class="muted small">${esc(g[0].phone_given || 'No number')} · ${g.length} signature${g.length === 1 ? '' : 's'}</p></div>
           ${canEdit() ? `<div style="display:flex;gap:.5rem;align-items:end;flex-wrap:wrap"><select data-pick="${g[0].id}" style="width:auto"><option value="">Match to</option>${opt(act, '', 'full_name')}</select>
-            <button class="btn small" data-link="${g[0].id}">Match</button><button class="btn small ghost" data-create="${g[0].id}">Add as new {op}</button></div>` : ''}</div>
+            <button class="btn small" data-link="${g[0].id}">Match</button><button class="btn small ghost" data-create="${g[0].id}">Add as new {op}</button><button class="btn small quiet" data-remove="${g.map(s => s.id).join(',')}" title="Delete these signatures (test signatures, wrong person)">Remove</button></div>` : ''}</div>
           <ul class="small" style="margin:0;padding-left:1.1rem">${g.map(s => `<li>${s.talk ? `Toolbox talk: ${esc(s.talk)}` : `${esc(s.job)}: ${esc(s.doc)}`}, ${fDT(s.signed_at)}</li>`).join('')}</ul></div>`).join('')
         : '<div class="empty"><b>Nothing to match.</b>Every signature is linked to someone on the register.</div>'}`);
     main().querySelectorAll('[data-link]').forEach(b => (b.onclick = async () => {
@@ -692,6 +692,11 @@
     }));
     main().querySelectorAll('[data-create]').forEach(b => (b.onclick = async () => {
       try { const r = await api(`/signoffs/${b.dataset.create}/link`, { body: { create: true } }); bust(); location.hash = '#/operatives/' + r.operative_id; } catch (e) { flash(e.message, 'err'); }
+    }));
+    main().querySelectorAll('[data-remove]').forEach(b => (b.onclick = async () => {
+      const ids = b.dataset.remove.split(',');
+      if (!confirm(`Delete ${ids.length === 1 ? 'this signature' : `these ${ids.length} signatures`}? Use this for test signatures or someone who should not be on the register. It cannot be undone.`)) return;
+      try { for (const id of ids) await api(`/signoffs/${id}`, { method: 'DELETE' }); flash('Removed.'); route(); } catch (e) { flash(e.message, 'err'); }
     }));
   }
 
