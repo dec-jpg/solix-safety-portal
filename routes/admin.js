@@ -386,8 +386,11 @@ r.post('/talks/:id/close', edit, async (req, res) => {
 r.delete('/talks/:id', edit, async (req, res) => {
   const t = (await q('SELECT status FROM talks WHERE id = $1', [req.params.id])).rows[0];
   if (t && t.status === 'library' && req.user.role !== 'owner') return res.status(403).json({ error: 'Library talks are maintained by Safety Simplified.' });
-  const row = (await q("DELETE FROM talks WHERE id = $1 AND status IN ('draft','library') RETURNING id", [req.params.id])).rows[0];
-  if (!row) return res.status(400).json({ error: 'Only drafts can be deleted.' });
+  // Issued and closed talks are records, so only Safety Simplified can delete one (test issues); their signatures go with them.
+  const row = req.user.role === 'owner'
+    ? (await q('DELETE FROM talks WHERE id = $1 RETURNING id', [req.params.id])).rows[0]
+    : (await q("DELETE FROM talks WHERE id = $1 AND status IN ('draft','library') RETURNING id", [req.params.id])).rows[0];
+  if (!row) return res.status(400).json({ error: 'Only drafts can be deleted. Close an issued talk instead, or ask Safety Simplified to remove it.' });
   res.json({ ok: true });
 });
 
