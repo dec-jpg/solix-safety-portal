@@ -346,8 +346,8 @@
         <label class="btn ghost small" for="sc">Scan card</label><input id="sc" type="file" accept="image/*" capture="environment" class="hidden"></div><div id="scanout"></div>` : ''}
       ${isNew ? field('Training', `<select id="ty"><option value="">Choose</option>${opt(ts, x.qual_type_id)}</select>`) : ''}
       ${field('Card or certificate number', input('nu', x.number))}
-      <div class="row">${field('Issued', input('is', x.issued_on, 'date'))}${field('Expires', input('ex', x.expires_on, 'date'), 'leave empty if it does not expire')}</div>
-      ${field(isNew ? 'Copy of the card' : 'Replace the copy', '<input id="fi" type="file" accept="image/*,application/pdf" capture="environment">', 'photo or PDF')}`,
+      <div class="row">${field('Expires', input('ex', x.expires_on, 'date'), 'leave empty if it does not expire')}${field('Issued', input('is', x.issued_on, 'date'), 'optional; fills in the expiry if the card does not show one')}</div>
+      ${field(isNew ? 'Copy of the card' : 'Replace the copy', '<input id="fi" type="file" accept="image/*,application/pdf" capture="environment"><div class="small muted" id="fnote"></div>', 'photo or PDF')}`,
     `${isNew ? '' : '<button class="btn danger left" id="del">Delete</button>'}<button class="btn" id="save">Save</button>`);
     const fillExpiry = () => {
       const t = ts.find(t => String(t.id) === String(isNew ? val('#ty') : x.qual_type_id));
@@ -355,6 +355,7 @@
     };
     $d('#is').onchange = fillExpiry;
     if (isNew) $d('#ty').onchange = fillExpiry;
+    let scanned = null;
     if ($d('#sc')) $d('#sc').onchange = async () => {
       const file = $d('#sc').files[0]; if (!file) return;
       const out = $d('#scanout'); const box = $d('#scanbox'); box.classList.add('busy');
@@ -365,10 +366,12 @@
         const found = [];
         if (isNew && r.type) { $d('#ty').value = String(r.type.id); found.push(r.type.name); }
         if (r.number) { $d('#nu').value = r.number; found.push(`number ${r.number}`); }
-        if (r.issued) { $d('#is').value = r.issued; found.push(`issued ${fDate(r.issued)}`); }
+        if (r.issued && r.issuedLabelled) { $d('#is').value = r.issued; found.push(`issued ${fDate(r.issued)}`); }
         if (r.expires) { $d('#ex').value = r.expires; found.push(`expires ${fDate(r.expires)}`); }
         if (!r.expires) fillExpiry();
-        const dt = new DataTransfer(); dt.items.add(r.photo); $d('#fi').files = dt.files;
+        scanned = r.photo;
+        try { const dt = new DataTransfer(); dt.items.add(r.photo); $d('#fi').files = dt.files; } catch { /* some phones will not take a file this way; it is still sent on save */ }
+        $d('#fnote').textContent = 'The scanned photo will be saved as the copy of the card.';
         const warn = r.nameMatch === false ? ' <b>The name on the card does not look like this person\'s: check it is the right card.</b>' : '';
         out.innerHTML = `<div class="note ${found.length ? 'ok' : 'warn'}">${found.length ? `Read from the card: ${esc(found.join(', '))}. Check them against the card before saving.` : 'Could not make out the details. Try again closer, flat and in good light, or type them in.'}${warn}</div>
           <details class="small muted" style="margin:-.4rem 0 1rem"><summary>What the scanner read</summary><pre style="white-space:pre-wrap;font-size:.75rem">${esc(r.text.trim())}</pre></details>`;
@@ -379,7 +382,7 @@
       const f = new FormData();
       f.append('operative_id', x.operative_id); if (isNew) f.append('qual_type_id', val('#ty'));
       f.append('number', val('#nu')); f.append('issued_on', val('#is')); f.append('expires_on', val('#ex'));
-      if ($d('#fi').files[0]) f.append('file', $d('#fi').files[0]);
+      if ($d('#fi').files[0]) f.append('file', $d('#fi').files[0]); else if (scanned) f.append('file', scanned);
       try { await api(isNew ? '/quals' : '/quals/' + x.id, { form: f, method: isNew ? 'POST' : 'PUT' }); dlg.close(); bust(); route(); }
       catch (e) { dlgErr(e.message); }
     };
@@ -539,7 +542,7 @@
       const f = new FormData();
       f.append('kind', val('#kd')); f.append('title', val('#ti')); f.append('reference', val('#rf')); f.append('revision', val('#rv'));
       f.append('requires_signoff', $d('#so').checked); if (prev) f.append('replaces', prev.id);
-      if ($d('#fi').files[0]) f.append('file', $d('#fi').files[0]);
+      if ($d('#fi').files[0]) f.append('file', $d('#fi').files[0]); else if (scanned) f.append('file', scanned);
       const b = $d('#save'); b.disabled = true; b.textContent = 'Uploading';
       try { await api(`/jobs/${j.id}/documents`, { form: f }); dlg.close(); route(); }
       catch (e) { b.disabled = false; b.textContent = 'Upload'; dlgErr(e.message); }

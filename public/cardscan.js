@@ -69,7 +69,7 @@ window.CardScan = (() => {
     if (!issued) issued = rest.find(d => d.iso <= today && d !== expires) || null;
     // a card's issue date is before its expiry; if they came out the wrong way round, swap
     if (issued && expires && issued.iso > expires.iso) [issued, expires] = [expires, issued];
-    return { issued: issued ? issued.iso : '', expires: expires ? expires.iso : '', dates: ds };
+    return { issued: issued ? issued.iso : '', issuedLabelled: !!(issued && ISS.test(issued.ctx)), expires: expires ? expires.iso : '', dates: ds };
   }
 
   // Fix the usual letter-for-digit misreads inside a token that is mostly digits.
@@ -143,7 +143,7 @@ window.CardScan = (() => {
     const nameMatch = sn ? (sn.length > 2 && text.toUpperCase().includes(sn)) : null;
     const b = atob(upload.split(',')[1]); const bytes = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) bytes[i] = b.charCodeAt(i);
     const photo = new File([bytes], (file.name || 'card').replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
-    return { text, number, issued: d.issued, expires: d.expires, type, nameMatch, confidence: data.confidence, photo, dates: d.dates.map(x => x.raw) };
+    return { text, number, issued: d.issued, issuedLabelled: d.issuedLabelled, expires: d.expires, type, nameMatch, confidence: data.confidence, photo, dates: d.dates.map(x => x.raw) };
   }
 
   return { scan, pickDates, pickNumber, pickType };
