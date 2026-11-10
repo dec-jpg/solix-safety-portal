@@ -596,7 +596,7 @@
     const ST = { draft: ['Draft', 'draft'], issued: ['Open for signing', 'yes'], closed: ['Closed', 'grey'] };
     const cats = [...new Set(lib.rows.map(t => t.category || 'General'))];
     setMain(`<div class="ad-head"><div><p class="muted">Pick a talk from the library and issue it. Send the link on WhatsApp; they read it${brand.quiz === false ? '' : ', answer the questions'} and sign. You see who has and hasn't.</p></div>
-        <div>${isOwner() && tab === 'library' ? '<button class="btn ghost" id="addLib">Add library talk</button>' : ''}${canEdit() ? '<button class="btn ghost" id="add">Write your own</button>' : ''}</div></div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">${isOwner() && tab === 'library' ? '<button class="btn ghost" id="addLib">Add library talk</button>' : ''}${isOwner() && tab === 'issued' && d.rows.some(t => t.status === 'closed') ? `<button class="btn quiet" id="delClosed">Delete closed talks (${d.rows.filter(t => t.status === 'closed').length})</button>` : ''}${canEdit() ? '<button class="btn ghost" id="add">Write your own</button>' : ''}</div></div>
       <div class="tabs"><button data-tab="issued" class="${tab === 'issued' ? 'on' : ''}">Issued (${d.rows.length})</button><button data-tab="library" class="${tab === 'library' ? 'on' : ''}">Library (${lib.rows.length})</button></div>
       ${tab === 'issued' ? `<div class="tablewrap">${d.rows.length ? `<table><thead><tr><th>Talk</th><th>For</th><th>Status</th><th>Issued</th><th>Signed</th></tr></thead><tbody>
         ${d.rows.map(t => `<tr class="click" data-id="${t.id}"><td><b>${esc(t.title)}</b>${t.ref ? ` <span class="small muted">${esc(t.ref)}</span>` : ''}</td><td>${esc(t.job || 'Everyone')}</td>
@@ -613,6 +613,13 @@
     main().querySelectorAll('[data-prev]').forEach(b => (b.onclick = () => (location.hash = '#/talks/' + b.dataset.prev)));
     main().querySelectorAll('[data-issue]').forEach(b => (b.onclick = () => issueDialog(lib.rows.find(t => String(t.id) === b.dataset.issue))));
     if (canEdit()) document.getElementById('add').onclick = async () => { const r = await api('/talks', { body: {} }); location.hash = '#/talks/' + r.row.id; };
+    if (document.getElementById('delClosed')) document.getElementById('delClosed').onclick = async () => {
+      const closed = d.rows.filter(t => t.status === 'closed');
+      if (!confirm(`Delete ${closed.length} closed talk${closed.length === 1 ? '' : 's'} and their signatures? Open talks are left alone. This cannot be undone.`)) return;
+      let n = 0;
+      for (const t of closed) { try { await api('/talks/' + t.id, { method: 'DELETE' }); n++; } catch (e) { flash(e.message, 'err'); } }
+      flash(`${n} deleted.`); route();
+    };
     if (document.getElementById('addLib')) document.getElementById('addLib').onclick = async () => { const r = await api('/talks', { body: { library: true } }); location.hash = '#/talks/' + r.row.id; };
   }
 
